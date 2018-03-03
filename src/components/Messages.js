@@ -6,7 +6,7 @@ const Messages = ({messages}) => {
         <div>
             Messages here...
             <div>
-                {messages.map(msg=>{ return <Message id={msg.id} message={msg} />})}
+                {messages.map(msg=>{ return <Message key={msg.id} message={msg} />})}
             </div>
         </div>
     )
