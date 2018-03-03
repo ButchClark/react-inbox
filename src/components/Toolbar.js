@@ -1,5 +1,4 @@
 import React from 'react'
-import {Button, Input, Row} from 'react-materialize'
 
 const Toolbar = ({numUnread}) => {
     return (
@@ -38,14 +37,3 @@ const Toolbar = ({numUnread}) => {
     )
 }
 export default Toolbar
-            {/*<div>*/}
-            {/*<Row>*/}
-            {/*<Button name='selectAll'>Select All</Button>*/}
-            {/*<Button name='markRead'>Mark Read</Button>*/}
-            {/*<Button name='markUnread'>Mark Unread</Button>*/}
-            {/*<Input type='select' name='applyLabel'/>*/}
-            {/*<Input type='select' name='removeLabel'/>*/}
-            {/*<Button name='deleteMessage'>Delete Message</Button>*/}
-            {/*{numUnread} unread messages*/}
-            {/*</Row>*/}
-            {/*</div>*/}

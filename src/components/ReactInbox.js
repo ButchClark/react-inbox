@@ -5,7 +5,6 @@ import Toolbar from './Toolbar'
 class ReactInbox extends React.Component {
     constructor(props) {
         var json = require('../seeds.json');
-        console.log("seeds: ", json)
         super(props)
         this.state = {
             messages: json,
