@@ -1,7 +1,7 @@
 import React from 'react'
 import {AllSelected,SomeSelected, NoneSelected} from "./ReactInbox";
 
-const Toolbar = ({selectedStyle, unreadMessages, selectionHandler, deleteHandler, markAsReadHandler}) => {
+const Toolbar = ({selectedStyle, unreadMessages, selectionHandler, deleteHandler, markAsReadHandler, markAsUnreadHandler}) => {
     let disableThem = false
 
     if(selectedStyle===NoneSelected) disableThem = true
@@ -36,7 +36,7 @@ const Toolbar = ({selectedStyle, unreadMessages, selectionHandler, deleteHandler
                 </button>
 
                 <button {...markAsProps} onClick={markAsReadHandler}>Mark As Read</button>
-                <button {...markAsProps} onClick={(e)=> {console.log(e.target.value)}}>Mark As Unread</button>
+                <button {...markAsProps} onClick={markAsUnreadHandler}>Mark As Unread</button>
 
                 <select {...selectProps} >
                     <option>Apply label</option>

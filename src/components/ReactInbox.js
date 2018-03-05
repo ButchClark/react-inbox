@@ -17,7 +17,7 @@ class ReactInbox extends React.Component {
             messages: json,
             selectedStyle: summary.selectedStyle,
             unreadMessages: summary.unreadCount,
-            totalMessageCount: summary.totalMessagesCount,
+            totalMessageCount: summary.totalMessageCount,
             selectedMessageCount: summary.selectedMessageCount
         }
 
@@ -26,6 +26,7 @@ class ReactInbox extends React.Component {
         this.updateState = this.updateState.bind(this)
         this.updateUnreadCount = this.updateUnreadCount.bind(this)
         this.markAsReadHandler = this.markAsReadHandler.bind(this)
+        this.markAsUnreadHandler = this.markAsUnreadHandler.bind(this)
         this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
         this.updateStarredHandler = this.updateStarredHandler.bind(this)
     }//end ctor()
@@ -60,7 +61,42 @@ class ReactInbox extends React.Component {
 
     markAsReadHandler(e) {
         console.log('MarkAsRead:...')
-        console.log('e.target.messages: ', e.target.messages)
+        var newMsgs = this.state.messages.map(msg => {
+            if(msg.selected === true){
+                msg.read = true
+            }
+            return msg
+        })
+        let summary = this.getSummaryInfo(newMsgs)
+        this.setState(
+            {
+                messages: newMsgs,
+                selectedStyle: summary.selectedStyle,
+                unreadMessages: summary.unreadCount,
+                totalMessageCount: summary.totalMessageCount,
+                selectedMessageCount: summary.selectedMessageCount
+            }
+        )
+    }
+
+    markAsUnreadHandler(e) {
+        console.log('MarkAsUnread:...')
+        var newMsgs = this.state.messages.map(msg => {
+            if(msg.selected === true){
+                msg.read = false
+            }
+            return msg
+        })
+        let summary = this.getSummaryInfo(newMsgs)
+        this.setState(
+            {
+                messages: newMsgs,
+                selectedStyle: summary.selectedStyle,
+                unreadMessages: summary.unreadCount,
+                totalMessageCount: summary.totalMessageCount,
+                selectedMessageCount: summary.selectedMessageCount
+            }
+        )
     }
 
     updateSelectedButtonHandler(e) {
@@ -114,7 +150,7 @@ class ReactInbox extends React.Component {
                     messages: messages,
                     selectedStyle: summary.selectedStyle,
                     unreadMessages: summary.unreadCount,
-                    totalMessageCount: summary.totalMessagesCount,
+                    totalMessageCount: summary.totalMessageCount,
                     selectedMessageCount: summary.selectedMessageCount
                 })
                 console.log("after setState(): ", this.state.messages)
@@ -215,6 +251,7 @@ class ReactInbox extends React.Component {
                         unreadMessages={this.state.unreadMessages}
                         deleteHandler={this.deleteHandler}
                         markAsReadHandler={this.markAsReadHandler}
+                        markAsUnreadHandler={this.markAsUnreadHandler}
                         selectionHandler={this.updateSelectedButtonHandler}
                     />
                 </div>
