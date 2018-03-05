@@ -1,35 +1,58 @@
 import React from 'react'
+import {AllSelected,SomeSelected, NoneSelected} from "./ReactInbox";
 
-const Toolbar = ({numUnread}) => {
+const Toolbar = ({selectedStyle, unreadMessages, deleteHandler}) => {
+    let disableThem = false
+    if(selectedStyle===NoneSelected) disableThem = true
+
+    let selectedFormat = 'fa '
+    if(selectedStyle === AllSelected){
+        selectedFormat += 'fa-check-square-o'
+    }else if (selectedStyle === SomeSelected){
+        selectedFormat += 'fa-minus-square-o'
+    }else if (selectedStyle === NoneSelected){
+        selectedFormat += 'fa-square-o'
+    }else{
+        console.log('!!! Toolbar got a weird value for selectedStyle: ', selectedStyle)
+    }
+    console.log('Toolbar - selectedFormat: ',selectedFormat)
+
+    var markAsProps = { className: 'btn btn-default' }
+    if(disableThem) markAsProps.disabled=true
+
+    var selectProps = {className: 'form-control label-select'}
+    if(disableThem) selectProps.disabled=true
+
     return (
 
         <div className="row toolbar">
             <div className="col-md-12">
                 <p className="pull-right">
-                    <span className="badge badge">{numUnread}</span>
-                    unread messages
+                    <span className="badge badge">{unreadMessages}</span>
+                    unread message{unreadMessages===1 ? "" : "s"}
                 </p>
                 <button className="btn btn-default">
-                    <i className="fa-minus-square-o"></i>
+                    <i className={selectedFormat}></i>
                 </button>
 
-                <button className="btn btn-default">Mark As Read</button>
+                <button {...markAsProps}>Mark As Read</button>
+                <button {...markAsProps}>Mark As Unread</button>
 
-                <select className="form-control label-select">
+                <select {...selectProps} >
                     <option>Apply label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                <select className="form-control label-select">
+                <select {...selectProps} >
                     <option>Remove label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                <button className="btn btn-default">
+                <button {...markAsProps} onClick={deleteHandler} >
                     <i className="fa fa-trash-o"></i>
                 </button>
             </div>

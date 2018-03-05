@@ -3,17 +3,65 @@ import Messages from './Messages'
 import Toolbar from './Toolbar'
 import ComposeMessage from './ComposeMessage'
 
+const AllSelected = 1
+const SomeSelected = 2
+const NoneSelected = 3
+
+
+
 class ReactInbox extends React.Component {
     constructor(props) {
-        var json = require('../seeds.json');
         super(props)
+
+        let json = require('../seeds.json')
+        let messageCount = json.length
+        let unread = 0;
+        json.map(msg =>{
+            if(msg.read===true){unread++}
+        })
+
+        let selectedFormat = 0
+        let selectedCount = 0
+        json.map(msg => {
+            if(msg.selected === true) selectedCount++
+        })
+        if(selectedCount === json.length){
+            selectedFormat = AllSelected
+        }else if (selectedCount > 0){
+            selectedFormat = SomeSelected
+        }else{
+            selectedFormat = NoneSelected
+        }
+
+        console.log('Total Msgs: ',messageCount, ', Unread Msgs: ',unread,', Selected Msgs: ',selectedCount);
+
         this.state = {
             messages: json,
-            numUnread: 2
+            unreadMessages: unread,
+            selectedStyle: selectedFormat
         }
         this.addItem = this.addItem.bind(this)
         this.getNextMessageId = this.getNextMessageId.bind(this)
         this.updateState = this.updateState.bind(this)
+        this.updateUnreadCount = this.updateUnreadCount.bind(this)
+
+
+    }
+
+    getSelectedFormat(){
+        let selectedFormat = 0
+        let selectedCount = 0
+        this.state.messages.map(msg => {
+            if(msg.selected === true) selectedCount++
+        })
+        if(selectedCount === this.state.messages.length){
+            selectedFormat = AllSelected
+        }else if (selectedCount > 0){
+            selectedFormat = SomeSelected
+        }else{
+            selectedFormat = NoneSelected
+        }
+        return selectedFormat
     }
 
     getNextMessageId() {
@@ -27,13 +75,23 @@ class ReactInbox extends React.Component {
         return highest + 1
     }
 
+    updateUnreadCount = () =>{
+        let count = 0;
+        this.state.messages.map(msg => {
+            if( msg.read === true) count++
+        })
+        console.log(' we now have ',count,' unread messages')
+        this.setState({unreadMessages: count})
+    }
+
     updateState = (msg) => {
         return new Promise(
             (resolve, reject) => {
                 // add new message to state
                 let messages = this.state.messages
                 messages.push(msg)
-                this.setState({messages: messages})
+                let selectFmt = this.getSelectedFormat()
+                this.setState({messages: messages, selectedStyle: selectFmt})
                 console.log("after setState(): ",this.state.messages)
                 resolve(true)
             }
@@ -71,22 +129,37 @@ class ReactInbox extends React.Component {
         this.addNewItem({subject: subj, body: bod})
     }
 
+    selectHandler = (e) => {
+        console.log('> selectMessage handler: ', e)
+        console.log(' .. e.target.selectCheckbox: ', e.target.selectCheckbox);
+    }
+
+    deleteHandler = (e) => {
+        console.log('> deleteHandler')
+        let uncheckedMessages = this.state.messages
+            .filter(m => !m.selected )
+
+        let selectFmt = this.getSelectedFormat()
+        this.setState({messages: uncheckedMessages, selectedStyle: NoneSelected})
+
+    }
 
     render() {
         return (
             <div>
                 <div>
-                    <Toolbar numUnread={this.state.numUnread}/>
+                    <Toolbar selectedStyle={this.state.selectedStyle} unreadMessages={this.state.unreadMessages} deleteHandler={this.deleteHandler}/>
                 </div>
                 <div>
                     <ComposeMessage sendMessage={this.addItem}/>
                 </div>
                 <div>
-                    <Messages messages={this.state.messages}/>
+                    <Messages name="messages" messages={this.state.messages} selectHandler={this.selectHandler}/>
                 </div>
             </div>
         )
     }
 }
 
+export {AllSelected, SomeSelected, NoneSelected}
 export default ReactInbox
