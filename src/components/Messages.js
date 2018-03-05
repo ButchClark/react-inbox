@@ -5,7 +5,7 @@ const Messages = ({messages, selectHandler}) => {
     return (
         <div>
             Messages here...
-            <div>
+            <div name='messages'>
                 {messages.map(msg=>{ return <Message key={msg.id} message={msg} selectHandler={selectHandler}/>})}
             </div>
         </div>

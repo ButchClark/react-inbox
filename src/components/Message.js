@@ -13,7 +13,7 @@ const Message = ({message, selectHandler}) => {
             <div className="col-xs-1">
                 <div className="row">
                     <div className="col-xs-2">
-                        <input name="selectCheckbox" type="checkbox" onChange={selectHandler} checked={message.selected?"checked":""}/>
+                        <input name="selectCheckbox" value={message.id} type="checkbox" onChange={selectHandler} checked={message.selected?"checked":""}/>
                     </div>
                     <div className="col-xs-2">
                         <i className={msgstarred}/>
