@@ -1,7 +1,6 @@
 import React from 'react'
 
 const ComposeMessage = ({sendMessage}) =>{
-    console.log("> ComposeMessage ")
     return (
         <div>
             <form className="form-horizontal well" onSubmit={sendMessage}>

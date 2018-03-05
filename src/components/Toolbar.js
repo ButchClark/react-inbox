@@ -3,7 +3,6 @@ import {AllSelected,SomeSelected, NoneSelected} from "./ReactInbox";
 
 const Toolbar = ({selectedStyle, unreadMessages, selectionHandler, deleteHandler, markAsReadHandler}) => {
     let disableThem = false
-    console.log('Toolbar - selectedStyle: ', selectedStyle, ', unreadMessagse: ', unreadMessages)
 
     if(selectedStyle===NoneSelected) disableThem = true
 
@@ -17,7 +16,6 @@ const Toolbar = ({selectedStyle, unreadMessages, selectionHandler, deleteHandler
     }else{
         console.log('!!! Toolbar got a weird value for selectedStyle: ', selectedStyle)
     }
-    console.log('Toolbar - selectedFormat: ',selectedFormat)
 
     var markAsProps = { className: 'btn btn-default' }
     if(disableThem) markAsProps.disabled=true

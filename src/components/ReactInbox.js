@@ -11,61 +11,51 @@ const NoneSelected = 3
 class ReactInbox extends React.Component {
     constructor(props) {
         super(props)
-
         let json = require('../seeds.json')
-        let messageCount = json.length
-        let unread = 0;
-        json.map(msg => {
-            if (msg.read === true) {
-                unread++
-            }
-            return unread
-        })
-
-        let selectedFormat = 0
-        let selectedCount = 0
-        json.map(msg => {
-            if (msg.selected === true) selectedCount++
-            return selectedCount
-        })
-        if (selectedCount === json.length) {
-            selectedFormat = AllSelected
-        } else if (selectedCount > 0) {
-            selectedFormat = SomeSelected
-        } else {
-            selectedFormat = NoneSelected
-        }
-
-        console.log('Total Msgs: ', messageCount, ', Unread Msgs: ', unread, ', Selected Msgs: ', selectedCount);
-
-        this.state = {
+        let summary = this.getSummaryInfo(json)
+        this.state ={
             messages: json,
-            unreadMessages: unread,
-            selectedStyle: selectedFormat
+            selectedStyle: summary.selectedStyle,
+            unreadMessages: summary.unreadCount,
+            totalMessageCount: summary.totalMessagesCount,
+            selectedMessageCount: summary.selectedMessageCount
         }
+
         this.addItem = this.addItem.bind(this)
         this.getNextMessageId = this.getNextMessageId.bind(this)
         this.updateState = this.updateState.bind(this)
         this.updateUnreadCount = this.updateUnreadCount.bind(this)
         this.markAsReadHandler = this.markAsReadHandler.bind(this)
         this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
+        this.updateStarredHandler = this.updateStarredHandler.bind(this)
     }//end ctor()
 
-    getSelectedFormat() {
+    getSummaryInfo(messages) {
+        console.log('> getSummaryInfo()')
         let selectedFormat = 0
         let selectedCount = 0
-        this.state.messages.map(msg => {
+        let unreadCount = 0
+        let totalMessages = 0
+        messages.map(msg => {
+            totalMessages++
+            if(msg.read !== true) unreadCount++
             if (msg.selected === true) selectedCount++
             return selectedCount
         })
-        if (selectedCount === this.state.messages.length) {
+        if (selectedCount === messages.length) {
             selectedFormat = AllSelected
         } else if (selectedCount > 0) {
             selectedFormat = SomeSelected
         } else {
             selectedFormat = NoneSelected
         }
-        return selectedFormat
+
+        console.log('.. calculated selectedMessageCount: ',selectedCount,', selectedStyle: ',selectedFormat, ', unreadCount: ', unreadCount, ', totalMsgs: ',totalMessages)
+        return {
+            selectedStyle: selectedFormat,
+            unreadCount: unreadCount,
+            selectedMessageCount: selectedCount,
+            totalMessageCount: totalMessages}
     }
 
     markAsReadHandler(e) {
@@ -118,8 +108,15 @@ class ReactInbox extends React.Component {
                 // add new message to state
                 let messages = this.state.messages
                 messages.push(msg)
-                let selectFmt = this.getSelectedFormat()
-                this.setState({messages: messages, selectedStyle: selectFmt})
+                let summary = this.getSummaryInfo(this.state.messages)
+                console.log(' updateState() - getSummaryInfo returned: ', summary)
+                this.setState({
+                    messages: messages,
+                    selectedStyle: summary.selectedStyle,
+                    unreadMessages: summary.unreadCount,
+                    totalMessageCount: summary.totalMessagesCount,
+                    selectedMessageCount: summary.selectedMessageCount
+                })
                 console.log("after setState(): ", this.state.messages)
                 resolve(true)
             }
@@ -157,8 +154,23 @@ class ReactInbox extends React.Component {
         this.addNewItem({subject: subj, body: bod})
     }
 
+    updateStarredHandler = (e) => {
+        var newMessages = this.state.messages.map( msg => {
+            if(Number(msg.id) === Number(e.currentTarget.dataset.messagenum)){
+                console.log(' -- starred: ', msg.starred)
+                if(msg.starred === true){
+                    msg.starred = false
+                }else{
+                    msg.starred = true
+                }
+            }
+            return msg
+        })
+        console.log('updateStarredHandler - msgs: ',newMessages)
+        this.setState({messages: newMessages})
+    }
+
     selectMessageHandler = (e) => {
-        console.log('> selectMessage handler: e.currentTarget ', e.currentTarget)
         console.log('  .. Updating selection box for message: ', e.currentTarget.value)
         var newMessages = this.state.messages.map(msg => {
 
@@ -179,8 +191,12 @@ class ReactInbox extends React.Component {
                 ,
                 newMessages
             )
-        this
-            .setState({messages: newMessages})
+        let ret = this.getSummaryInfo(this.state.messages)
+        console.log('getSummaryInfo returned: ', ret.selectedStyle, ', and count: ',ret.unreadCount)
+        this.setState({
+            messages: newMessages,
+            selectedStyle: ret.selectedStyle,
+            unreadMessages: ret.unreadCount})
     }
 
     deleteHandler = (e) => {
@@ -206,7 +222,12 @@ class ReactInbox extends React.Component {
                     <ComposeMessage sendMessage={this.addItem}/>
                 </div>
                 <div>
-                    <Messages name="messages" messages={this.state.messages} selectHandler={this.selectMessageHandler}/>
+                    <Messages
+                        name="messages"
+                        messages={this.state.messages}
+                        selectHandler={this.selectMessageHandler}
+                        starHandler={this.updateStarredHandler}
+                    />
                 </div>
             </div>
         )
