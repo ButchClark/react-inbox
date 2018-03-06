@@ -1,27 +1,36 @@
 import React from 'react'
-import {AllSelected,SomeSelected, NoneSelected} from "./ReactInbox";
+import {AllSelected, NoneSelected, SomeSelected} from "./ReactInbox";
 
-const Toolbar = ({selectedStyle, unreadMessages, selectionHandler, deleteHandler, markAsReadHandler, markAsUnreadHandler}) => {
+const Toolbar = ({
+                     selectedStyle,
+                     unreadMessages,
+                     selectionHandler,
+                     deleteHandler,
+                     markAsReadHandler,
+                     markAsUnreadHandler,
+                     addLabelHandler,
+                     removeLabelHandler
+                 }) => {
     let disableThem = false
 
-    if(selectedStyle===NoneSelected) disableThem = true
+    if (selectedStyle === NoneSelected) disableThem = true
 
     let selectedFormat = 'fa '
-    if(selectedStyle === AllSelected){
+    if (selectedStyle === AllSelected) {
         selectedFormat += 'fa-check-square-o'
-    }else if (selectedStyle === SomeSelected){
+    } else if (selectedStyle === SomeSelected) {
         selectedFormat += 'fa-minus-square-o'
-    }else if (selectedStyle === NoneSelected){
+    } else if (selectedStyle === NoneSelected) {
         selectedFormat += 'fa-square-o'
-    }else{
+    } else {
         console.log('!!! Toolbar got a weird value for selectedStyle: ', selectedStyle)
     }
 
-    var markAsProps = { className: 'btn btn-default' }
-    if(disableThem) markAsProps.disabled=true
+    var markAsProps = {className: 'btn btn-default'}
+    if (disableThem) markAsProps.disabled = true
 
     var selectProps = {className: 'form-control label-select'}
-    if(disableThem) selectProps.disabled=true
+    if (disableThem) selectProps.disabled = true
 
     return (
 
@@ -29,7 +38,7 @@ const Toolbar = ({selectedStyle, unreadMessages, selectionHandler, deleteHandler
             <div className="col-md-12">
                 <p className="pull-right">
                     <span className="badge badge">{unreadMessages}</span>
-                    unread message{unreadMessages===1 ? "" : "s"}
+                    unread message{unreadMessages === 1 ? "" : "s"}
                 </p>
                 <button className="btn btn-default" onClick={selectionHandler}>
                     <i className={selectedFormat}></i>
@@ -38,21 +47,21 @@ const Toolbar = ({selectedStyle, unreadMessages, selectionHandler, deleteHandler
                 <button {...markAsProps} onClick={markAsReadHandler}>Mark As Read</button>
                 <button {...markAsProps} onClick={markAsUnreadHandler}>Mark As Unread</button>
 
-                <select {...selectProps} >
+                <select {...selectProps} onChange={addLabelHandler} >
                     <option>Apply label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                <select {...selectProps} >
+                <select {...selectProps} onChange={removeLabelHandler}>
                     <option>Remove label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                <button {...markAsProps} onClick={deleteHandler} >
+                <button {...markAsProps} onClick={deleteHandler}>
                     <i className="fa fa-trash-o"></i>
                 </button>
             </div>

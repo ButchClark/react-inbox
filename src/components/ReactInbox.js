@@ -22,15 +22,13 @@ class ReactInbox extends React.Component {
         }
 
         this.addItem = this.addItem.bind(this)
-        this.getNextMessageId = this.getNextMessageId.bind(this)
         this.updateState = this.updateState.bind(this)
-        this.updateUnreadCount = this.updateUnreadCount.bind(this)
-        this.markAsReadHandler = this.markAsReadHandler.bind(this)
-        this.markAsUnreadHandler = this.markAsUnreadHandler.bind(this)
         this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
         this.updateStarredHandler = this.updateStarredHandler.bind(this)
     }//end ctor()
 
+    //----------------------------------
+    // Helper methods
     getSummaryInfo(messages) {
         console.log('> getSummaryInfo()')
         let selectedFormat = 0
@@ -58,68 +56,9 @@ class ReactInbox extends React.Component {
             selectedMessageCount: selectedCount,
             totalMessageCount: totalMessages}
     }
-
-    markAsReadHandler(e) {
-        console.log('MarkAsRead:...')
-        var newMsgs = this.state.messages.map(msg => {
-            if(msg.selected === true){
-                msg.read = true
-            }
-            return msg
-        })
-        let summary = this.getSummaryInfo(newMsgs)
-        this.setState(
-            {
-                messages: newMsgs,
-                selectedStyle: summary.selectedStyle,
-                unreadMessages: summary.unreadCount,
-                totalMessageCount: summary.totalMessageCount,
-                selectedMessageCount: summary.selectedMessageCount
-            }
-        )
-    }
-
-    markAsUnreadHandler(e) {
-        console.log('MarkAsUnread:...')
-        var newMsgs = this.state.messages.map(msg => {
-            if(msg.selected === true){
-                msg.read = false
-            }
-            return msg
-        })
-        let summary = this.getSummaryInfo(newMsgs)
-        this.setState(
-            {
-                messages: newMsgs,
-                selectedStyle: summary.selectedStyle,
-                unreadMessages: summary.unreadCount,
-                totalMessageCount: summary.totalMessageCount,
-                selectedMessageCount: summary.selectedMessageCount
-            }
-        )
-    }
-
-    updateSelectedButtonHandler(e) {
-        let clearAll
-        let newState
-        if (this.state.selectedStyle === AllSelected) {
-            clearAll = false
-            newState = NoneSelected
-        } else {
-            clearAll = true
-            newState = AllSelected
-        }
-        let newMsgs = this.state.messages
-        newMsgs.forEach(function (msg) {
-            msg.selected = clearAll
-        })
-        console.log('setState for messages: ', newMsgs)
-        this.setState({messages: newMsgs, selectedStyle: newState})
-    }
-
-    getNextMessageId() {
+    getNextMessageId(messages) {
         let highest = 0
-        this.state.messages.map(m => {
+        messages.map(m => {
             if (Number(m.id) > highest) {
                 highest = Number(m.id)
             }
@@ -127,17 +66,6 @@ class ReactInbox extends React.Component {
         })
         return highest + 1
     }
-
-    updateUnreadCount = () => {
-        let count = 0;
-        this.state.messages.map(msg => {
-            if (msg.read === true) count++
-            return count
-        })
-        console.log(' we now have ', count, ' unread messages')
-        this.setState({unreadMessages: count})
-    }
-
     updateState = (msg) => {
         return new Promise(
             (resolve, reject) => {
@@ -159,37 +87,46 @@ class ReactInbox extends React.Component {
         )
     }
 
-    async addNewItem({subject, body}) {
-        console.log("> in async addNewItem(ie, to state)")
-        console.log('  .. subject: ', subject)
-        console.log('  .. body   : ', body)
-        try {
-            let resp
-            let msg = {
-                id: this.getNextMessageId(),
-                subject: subject,
-                body: body,
-                starred: false,
-                read: false,
-                labels: []
+    //----------------------------------
+    // Handler methods
+    markAsReadHandler = () =>{
+        console.log('MarkAsRead:...')
+        var newMsgs = this.state.messages.map(msg => {
+            if(msg.selected === true){
+                msg.read = true
             }
-            console.log('new message: ', msg)
-            resp = await this.updateState(msg)
-            console.log("response from updateState: ", resp)
-        } catch (err) {
-            console.log("ERROR calling updateState: ", err)
-        }
-        return "message added"
+            return msg
+        })
+        let summary = this.getSummaryInfo(newMsgs)
+        this.setState(
+            {
+                messages: newMsgs,
+                selectedStyle: summary.selectedStyle,
+                unreadMessages: summary.unreadCount,
+                totalMessageCount: summary.totalMessageCount,
+                selectedMessageCount: summary.selectedMessageCount
+            }
+        )
     }
-
-    addItem = (e) => {
-        e.preventDefault()
-        console.log("> in addItem - e.target: ", e.target)
-        let subj = e.target.subject.value
-        let bod = e.target.body.value
-        this.addNewItem({subject: subj, body: bod})
+    markAsUnreadHandler = () => {
+        console.log('MarkAsUnread:...')
+        var newMsgs = this.state.messages.map(msg => {
+            if(msg.selected === true){
+                msg.read = false
+            }
+            return msg
+        })
+        let summary = this.getSummaryInfo(newMsgs)
+        this.setState(
+            {
+                messages: newMsgs,
+                selectedStyle: summary.selectedStyle,
+                unreadMessages: summary.unreadCount,
+                totalMessageCount: summary.totalMessageCount,
+                selectedMessageCount: summary.selectedMessageCount
+            }
+        )
     }
-
     updateStarredHandler = (e) => {
         var newMessages = this.state.messages.map( msg => {
             if(Number(msg.id) === Number(e.currentTarget.dataset.messagenum)){
@@ -205,7 +142,6 @@ class ReactInbox extends React.Component {
         console.log('updateStarredHandler - msgs: ',newMessages)
         this.setState({messages: newMessages})
     }
-
     selectMessageHandler = (e) => {
         console.log('  .. Updating selection box for message: ', e.currentTarget.value)
         var newMessages = this.state.messages.map(msg => {
@@ -234,14 +170,108 @@ class ReactInbox extends React.Component {
             selectedStyle: ret.selectedStyle,
             unreadMessages: ret.unreadCount})
     }
-
+    addItem = (e) => {
+        e.preventDefault()
+        console.log("> in addItem - e.target: ", e.target)
+        let subj = e.target.subject.value
+        let bod = e.target.body.value
+        this.addNewItem({subject: subj, body: bod})
+    }
     deleteHandler = (e) => {
         console.log('> deleteHandler')
         let uncheckedMessages = this.state.messages
             .filter(m => !m.selected)
         this.setState({messages: uncheckedMessages, selectedStyle: NoneSelected})
     }
+    updateSelectedButtonHandler(e) {
+        let clearAll
+        let newState
+        if (this.state.selectedStyle === AllSelected) {
+            clearAll = false
+            newState = NoneSelected
+        } else {
+            clearAll = true
+            newState = AllSelected
+        }
+        let newMsgs = this.state.messages
+        newMsgs.forEach(function (msg) {
+            msg.selected = clearAll
+        })
+        console.log('setState for messages: ', newMsgs)
+        this.setState({messages: newMsgs, selectedStyle: newState})
+    }
+    async addNewItem({subject, body}) {
+        console.log("> in async addNewItem(ie, to state)")
+        console.log('  .. subject: ', subject)
+        console.log('  .. body   : ', body)
+        try {
+            let resp
+            let msg = {
+                id: this.getNextMessageId(this.state.messages),
+                subject: subject,
+                body: body,
+                starred: false,
+                read: false,
+                labels: []
+            }
+            console.log('new message: ', msg)
+            resp = await this.updateState(msg)
+            console.log("response from updateState: ", resp)
+        } catch (err) {
+            console.log("ERROR calling updateState: ", err)
+        }
+        return "message added"
+    }
+    applyLabelHandler = (e) => {
+        console.log('> addLabelHandler')
+        if(e.currentTarget.value.toString() === "Apply label") return
 
+        var newMsgs = this.state.messages.map(msg => {
+            if(msg.selected === true){
+                console.log('msg.labels: ',msg.labels)
+                if( !msg.labels.includes(e.currentTarget.value.toString())){
+                    msg.labels.push(e.currentTarget.value.toString())
+                }
+            }
+            return msg
+        })
+        let summary = this.getSummaryInfo(newMsgs)
+        this.setState(
+            {
+                messages: newMsgs,
+                selectedStyle: summary.selectedStyle,
+                unreadMessages: summary.unreadCount,
+                totalMessageCount: summary.totalMessageCount,
+                selectedMessageCount: summary.selectedMessageCount
+            }
+        )
+    }
+    removeLabelHandler = (e) => {
+        console.log('> removeLabelHandler')
+        if(e.currentTarget.value.toString() === "Remove label") return
+
+        var newMsgs = this.state.messages.map(msg => {
+            if(msg.selected === true){
+                console.log('msg.labels: ',msg.labels)
+                if( msg.labels.includes(e.currentTarget.value.toString())){
+                    let index = msg.labels.indexOf(e.currentTarget.value.toString())
+                    console.log('label index: ', index)
+                    msg.labels.splice(index,1)
+                }
+            }
+            return msg
+        })
+        let summary = this.getSummaryInfo(newMsgs)
+        this.setState(
+            {
+                messages: newMsgs,
+                selectedStyle: summary.selectedStyle,
+                unreadMessages: summary.unreadCount,
+                totalMessageCount: summary.totalMessageCount,
+                selectedMessageCount: summary.selectedMessageCount
+            }
+        )
+    }
     render() {
         return (
             <div>
@@ -252,6 +282,8 @@ class ReactInbox extends React.Component {
                         deleteHandler={this.deleteHandler}
                         markAsReadHandler={this.markAsReadHandler}
                         markAsUnreadHandler={this.markAsUnreadHandler}
+                        addLabelHandler={this.applyLabelHandler}
+                        removeLabelHandler={this.removeLabelHandler}
                         selectionHandler={this.updateSelectedButtonHandler}
                     />
                 </div>
