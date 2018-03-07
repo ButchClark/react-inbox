@@ -11,6 +11,21 @@ const selectMessageHandler = (e,selectHandler) =>{
 }
 
 const Message = ({message, selectHandler, starHandler}) => {
+    var checkboxOptions = {
+        name: "selectCheckbox",
+        value: message.id,
+        type: "checkbox",
+        onChange: (e)=>{selectMessageHandler(e,selectHandler)}
+    }
+    console.dir(message)
+
+    if(message.selected){
+        checkboxOptions.checked = true
+        console.log(" .. We are setting Checked: ", checkboxOptions)
+    }
+
+    console.log("checkbox options: ", checkboxOptions)
+
     let rowFormat = "row message "
     rowFormat += message.read ? "read " : "unread "
     rowFormat += message.selected ? "selected " : ""

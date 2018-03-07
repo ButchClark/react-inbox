@@ -144,8 +144,8 @@ class ReactInbox extends React.Component {
         var newMessages = this.state.messages.map(msg => {
                 if (Number(msg.id) === Number(messageId)) {
                     console.log(' .. flipping message.selected')
-                    // msg.selected = msg.selected===true ? false : true
-                    msg.selected = !msg.selected
+                    msg.selected = (msg.selected===true) ? false : true
+                    // msg.selected = !msg.selected
                 }
                 return msg
             }
