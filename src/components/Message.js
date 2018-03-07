@@ -1,10 +1,22 @@
 import React from 'react'
 
+const starClickHandler = (e,upstreamHandler) => {
+    e.preventDefault()
+    upstreamHandler({messageId: e.currentTarget.value})
+}
+
+const selectMessageHandler = (e,selectHandler) =>{
+    e.preventDefault()
+    selectHandler({messageId: e.currentTarget.value})
+}
+
 const Message = ({message, selectHandler, starHandler}) => {
-    // console.log("Message: ", message)
     let rowFormat = "row message "
     rowFormat += message.read ? "read " : "unread "
     rowFormat += message.selected ? "selected " : ""
+    let checkedStatus = message.selected? "checked" : ""
+
+    console.log("MessageId: ", message.id, ', selected: ',message.selected,', checkedStatus: ',checkedStatus)
 
     let msgstarred = message.starred ? "star fa fa-star" : "star fa fa-star-o"
 
@@ -17,15 +29,15 @@ const Message = ({message, selectHandler, starHandler}) => {
                             name="selectCheckbox"
                             value={message.id}
                             type="checkbox"
-                            onChange={selectHandler}
-                            checked={message.selected?"checked":""}/>
+                            onChange={(e) => selectMessageHandler(e,selectHandler)}
+                            checked={checkedStatus}/>
                     </div>
                     <div className="col-xs-2" >
                         <i name="star"
                            data-messagenum={message.id}
                            data-msg="MyMsg"
                            value={message.id}
-                           onClick={starHandler.bind(this)}
+                           onClick={(e) => {starClickHandler(e,starHandler)}}
                            className={msgstarred}/>
                     </div>
                 </div>

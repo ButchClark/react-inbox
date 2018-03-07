@@ -21,10 +21,9 @@ class ReactInbox extends React.Component {
             selectedMessageCount: summary.selectedMessageCount
         }
 
-        this.addItem = this.addItem.bind(this)
-        this.updateState = this.updateState.bind(this)
-        this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
-        this.updateStarredHandler = this.updateStarredHandler.bind(this)
+        // this.updateState = this.updateState.bind(this)
+        // this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
+        // this.updateStarredHandler = this.updateStarredHandler.bind(this)
     }//end ctor()
 
     //----------------------------------
@@ -55,6 +54,7 @@ class ReactInbox extends React.Component {
             selectedMessageCount: selectedCount,
             totalMessageCount: totalMessages}
     }
+
     getNextMessageId(messages) {
         let highest = 0
         messages.map(m => {
@@ -65,6 +65,7 @@ class ReactInbox extends React.Component {
         })
         return highest + 1
     }
+
     updateState = (msg) => {
         return new Promise(
             (resolve, reject) => {
@@ -104,6 +105,7 @@ class ReactInbox extends React.Component {
             }
         )
     }
+
     markAsUnreadHandler = () => {
         var newMsgs = this.state.messages.map(msg => {
             if(msg.selected === true){
@@ -122,9 +124,10 @@ class ReactInbox extends React.Component {
             }
         )
     }
-    updateStarredHandler = (e) => {
+
+    updateStarredHandler = ({messageId}) => {
         var newMessages = this.state.messages.map( msg => {
-            if(Number(msg.id) === Number(e.currentTarget.dataset.messagenum)){
+            if(Number(msg.id) === Number(messageId)){
                 if(msg.starred === true){
                     msg.starred = false
                 }else{
@@ -135,16 +138,14 @@ class ReactInbox extends React.Component {
         })
         this.setState({messages: newMessages})
     }
-    selectMessageHandler = (e) => {
-        var newMessages = this.state.messages.map(msg => {
 
-                if (Number(msg.id) === Number(e.currentTarget.value)) {
-                    if (!msg.selected) {
-                        msg.selected = true
-                    }
-                    else {
-                        msg.selected = false
-                    }
+    selectMessageHandler = ({messageId}) => {
+        console.log('> selectMessageHandler - messageId: ',messageId)
+        var newMessages = this.state.messages.map(msg => {
+                if (Number(msg.id) === Number(messageId)) {
+                    console.log(' .. flipping message.selected')
+                    // msg.selected = msg.selected===true ? false : true
+                    msg.selected = !msg.selected
                 }
                 return msg
             }
@@ -161,17 +162,17 @@ class ReactInbox extends React.Component {
             selectedStyle: ret.selectedStyle,
             unreadMessages: ret.unreadCount})
     }
-    addItem = (e) => {
-        e.preventDefault()
-        let subj = e.target.subject.value
-        let bod = e.target.body.value
-        this.addNewItem({subject: subj, body: bod})
+
+    addMesssage = ({subject, body}) => {
+        this.addNewItem({subject: subject, body: body})
     }
-    deleteHandler = (e) => {
+
+    deleteHandler = () => {
         let uncheckedMessages = this.state.messages
             .filter(m => !m.selected)
         this.setState({messages: uncheckedMessages, selectedStyle: NoneSelected})
     }
+
     updateSelectedButtonHandler(e) {
         let clearAll
         let newState
@@ -266,7 +267,7 @@ class ReactInbox extends React.Component {
                     />
                 </div>
                 <div>
-                    <ComposeMessage sendMessage={this.addItem}/>
+                    <ComposeMessage sendMessage={this.addMesssage}/>
                 </div>
                 <div>
                     <Messages
