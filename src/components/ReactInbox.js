@@ -22,7 +22,7 @@ class ReactInbox extends React.Component {
         }
 
         // this.updateState = this.updateState.bind(this)
-        // this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
+        this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
         // this.updateStarredHandler = this.updateStarredHandler.bind(this)
     }//end ctor()
 
@@ -125,7 +125,7 @@ class ReactInbox extends React.Component {
         )
     }
 
-    updateStarredHandler = ({messageId}) => {
+    updateStarredHandler = (messageId) => {
         var newMessages = this.state.messages.map( msg => {
             if(Number(msg.id) === Number(messageId)){
                 if(msg.starred === true){
@@ -144,23 +144,21 @@ class ReactInbox extends React.Component {
         var newMessages = this.state.messages.map(msg => {
                 if (Number(msg.id) === Number(messageId)) {
                     console.log(' .. flipping message.selected')
-                    msg.selected = (msg.selected===true) ? false : true
+                    msg.selected = msg.selected===true ? false : true
                     // msg.selected = !msg.selected
                 }
                 return msg
             }
         )
-        console
-            .log(
-                ' .. updated msgs: '
-                ,
-                newMessages
-            )
-        let ret = this.getSummaryInfo(this.state.messages)
+        let summary = this.getSummaryInfo(newMessages)
+        console.log(' .. updated msgs: ', newMessages)
         this.setState({
             messages: newMessages,
-            selectedStyle: ret.selectedStyle,
-            unreadMessages: ret.unreadCount})
+            selectedStyle: summary.selectedStyle,
+            unreadMessages: summary.unreadCount,
+            totalMessageCount: summary.totalMessageCount,
+            selectedMessageCount: summary.selectedMessageCount
+        })
     }
 
     addMesssage = ({subject, body}) => {
@@ -170,10 +168,18 @@ class ReactInbox extends React.Component {
     deleteHandler = () => {
         let uncheckedMessages = this.state.messages
             .filter(m => !m.selected)
-        this.setState({messages: uncheckedMessages, selectedStyle: NoneSelected})
+        let summary = this.getSummaryInfo(uncheckedMessages)
+        this.setState({
+            messages: uncheckedMessages,
+            selectedStyle: summary.selectedStyle,
+            unreadMessages: summary.unreadCount,
+            totalMessageCount: summary.totalMessageCount,
+            selectedMessageCount: summary.selectedMessageCount
+        })
+        //this.setState({messages: uncheckedMessages, selectedStyle: NoneSelected})
     }
 
-    updateSelectedButtonHandler(e) {
+    updateSelectedButtonHandler() {
         let clearAll
         let newState
         if (this.state.selectedStyle === AllSelected) {
@@ -189,6 +195,7 @@ class ReactInbox extends React.Component {
         })
         this.setState({messages: newMsgs, selectedStyle: newState})
     }
+
     async addNewItem({subject, body}) {
         try {
             let resp
@@ -206,13 +213,14 @@ class ReactInbox extends React.Component {
         }
         return "message added"
     }
-    applyLabelHandler = (e) => {
-        if(e.currentTarget.value.toString() === "Apply label") return
+
+    applyLabelHandler = (label) => {
+        if(label === "Apply label") return
 
         var newMsgs = this.state.messages.map(msg => {
             if(msg.selected === true){
-                if( !msg.labels.includes(e.currentTarget.value.toString())){
-                    msg.labels.push(e.currentTarget.value.toString())
+                if( !msg.labels.includes(label)){
+                    msg.labels.push(label)
                 }
             }
             return msg
@@ -228,13 +236,14 @@ class ReactInbox extends React.Component {
             }
         )
     }
-    removeLabelHandler = (e) => {
-        if(e.currentTarget.value.toString() === "Remove label") return
+
+    removeLabelHandler = (label) => {
+        if(label === "Remove label") return
 
         var newMsgs = this.state.messages.map(msg => {
             if(msg.selected === true){
-                if( msg.labels.includes(e.currentTarget.value.toString())){
-                    let index = msg.labels.indexOf(e.currentTarget.value.toString())
+                if( msg.labels.includes(label)){
+                    let index = msg.labels.indexOf(label)
                     msg.labels.splice(index,1)
                 }
             }

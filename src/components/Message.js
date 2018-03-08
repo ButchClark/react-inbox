@@ -2,7 +2,7 @@ import React from 'react'
 
 const starClickHandler = (e,upstreamHandler) => {
     e.preventDefault()
-    upstreamHandler({messageId: e.currentTarget.value})
+    upstreamHandler(e.target.dataset.messagenum)
 }
 
 const selectMessageHandler = (e,selectHandler) =>{
@@ -29,9 +29,9 @@ const Message = ({message, selectHandler, starHandler}) => {
     let rowFormat = "row message "
     rowFormat += message.read ? "read " : "unread "
     rowFormat += message.selected ? "selected " : ""
-    let checkedStatus = message.selected? "checked" : ""
+    let checkedStatus = message.selected===true? "checked" : ""
 
-    console.log("MessageId: ", message.id, ', selected: ',message.selected,', checkedStatus: ',checkedStatus)
+    console.log("MessageId: ", message.id, ', selected: ',message.selected,', checkedStatus: ',checkedStatus, ', starred: ',message.starred)
 
     let msgstarred = message.starred ? "star fa fa-star" : "star fa fa-star-o"
 

@@ -1,6 +1,16 @@
 import React from 'react'
 import {AllSelected, NoneSelected, SomeSelected} from "./ReactInbox";
 
+const addLabelEventHandler = (e, addLabel) =>{
+    e.preventDefault()
+    addLabel( e.currentTarget.value )
+}
+
+const removeLabelEventHandler = (e, removeLabel) => {
+    e.preventDefault()
+    removeLabel(e.currentTarget.value)
+}
+
 const Toolbar = ({
                      selectedStyle,
                      unreadMessages,
@@ -47,14 +57,14 @@ const Toolbar = ({
                 <button {...markAsProps} onClick={markAsReadHandler}>Mark As Read</button>
                 <button {...markAsProps} onClick={markAsUnreadHandler}>Mark As Unread</button>
 
-                <select {...selectProps} onChange={addLabelHandler} >
+                <select {...selectProps} onChange={(e) => {addLabelEventHandler(e,addLabelHandler)}} >
                     <option>Apply label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                <select {...selectProps} onChange={removeLabelHandler}>
+                <select {...selectProps} onChange={(e)=>{removeLabelEventHandler(e,removeLabelHandler)}}>
                     <option>Remove label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
