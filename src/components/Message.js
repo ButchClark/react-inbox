@@ -6,7 +6,9 @@ const starClickHandler = (e,upstreamHandler) => {
 }
 
 const selectMessageHandler = (e,selectHandler) =>{
-    e.preventDefault()
+    // The following preventDefault() was breaking the normal
+    //  checkbox event handling.
+    // e.preventDefault()
     selectHandler({messageId: e.currentTarget.value})
 }
 
