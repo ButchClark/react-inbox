@@ -42,7 +42,40 @@ class ReactInbox extends React.Component {
         }
     }
 
-    
+    async setStarred(msgId){
+        try{
+            let msgRes = await fetch(`${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}/${msgId}`)
+            let msgJson = await msgRes.json()
+            let starred = !msgJson.starred
+
+            let theBody = { messageIds: [msgId], command: "star", star: starred}
+            console.log(`setStarred(${msgId}) - sending payload: ${theBody}`)
+
+            let resp = await fetch(
+                `${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}`,
+                {
+                    method: "PATCH",
+                    body: JSON.stringify(theBody),
+                    headers: {
+                        "Content-Type": "application/json"
+                    }
+                }
+            )
+            if(resp.ok){
+                console.log(' PATCH was successful')
+            }
+            this.loadMessages()
+                .then(() => console.log('In starred handler, just called loadMessage()'))
+        }catch(err){
+            console.log(`ERROR in setStarred(${msgId}): ${err}`)
+        }
+    }
+
+    updateStarredHandler = (messageId) =>
+    {
+        this.setStarred(messageId)
+            .then(() => console.log(`ReactInbox.updateStarredHandler() just claled setStarred(${messageId})`))
+    }
 
 
 
@@ -147,19 +180,7 @@ class ReactInbox extends React.Component {
         )
     }
 
-    updateStarredHandler = (messageId) => {
-        var newMessages = this.state.messages.map( msg => {
-            if(Number(msg.id) === Number(messageId)){
-                if(msg.starred === true){
-                    msg.starred = false
-                }else{
-                    msg.starred = true
-                }
-            }
-            return msg
-        })
-        this.setState({messages: newMessages})
-    }
+
 
     selectMessageHandler = ({messageId}) => {
         console.log('> selectMessageHandler - messageId: ',messageId)
