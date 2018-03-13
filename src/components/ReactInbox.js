@@ -11,21 +11,27 @@ const NoneSelected = 3
 class ReactInbox extends React.Component {
     constructor(props) {
         super(props)
-        let json = require('../seeds.json')
-        let summary = this.getSummaryInfo(json)
         this.state ={
-            messages: json,
-            selectedStyle: summary.selectedStyle,
-            unreadMessages: summary.unreadCount,
-            totalMessageCount: summary.totalMessageCount,
-            selectedMessageCount: summary.selectedMessageCount
+            messages: [],
+            selectedStyle: 0,
+            unreadMessages: 0,
+            totalMessageCount: 0,
+            selectedMessageCount: 0
         }
 
-        // this.updateState = this.updateState.bind(this)
         this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
-        // this.updateStarredHandler = this.updateStarredHandler.bind(this)
     }//end ctor()
 
+    async componentDidMount (){
+        console.log(`ReactInbox.componentDidMount() - NODE_ENV: ${process.env.NODE_ENV} `)
+        let msgsServer = process.env.REACT_APP_MESSAGES_SERVER
+        let msgsURI = process.env.REACT_APP_MESSAGES_URI
+        console.log(`ReactInbox.componentDidMount - getting msgs from: ${msgsServer}${msgsURI}`)
+        const res = await fetch(`${msgsServer}${msgsURI}`)
+        const json = await res.json()
+        const msgs = json._embedded.messages
+        this.setState({messages: msgs})
+    }
     //----------------------------------
     // Helper methods
     getSummaryInfo(messages) {
