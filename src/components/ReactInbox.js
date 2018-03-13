@@ -22,16 +22,32 @@ class ReactInbox extends React.Component {
         this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
     }//end ctor()
 
-    async componentDidMount (){
+    componentDidMount (){
         console.log(`ReactInbox.componentDidMount() - NODE_ENV: ${process.env.NODE_ENV} `)
-        let msgsServer = process.env.REACT_APP_MESSAGES_SERVER
-        let msgsURI = process.env.REACT_APP_MESSAGES_URI
-        console.log(`ReactInbox.componentDidMount - getting msgs from: ${msgsServer}${msgsURI}`)
-        const res = await fetch(`${msgsServer}${msgsURI}`)
-        const json = await res.json()
-        const msgs = json._embedded.messages
-        this.setState({messages: msgs})
+        this.loadMessages()
+            // .then(console.log("messages loaded"))
     }
+
+    async loadMessages(){
+        try {
+            let msgsServer = process.env.REACT_APP_MESSAGES_SERVER
+            let msgsURI = process.env.REACT_APP_MESSAGES_URI
+            console.log(`ReactInbox.componentDidMount - getting msgs from: ${msgsServer}${msgsURI}`)
+            const res = await fetch(`${msgsServer}${msgsURI}`)
+            const json = await res.json()
+            const msgs = json._embedded.messages
+            this.setState({messages: msgs})
+        }catch(err){
+            console.log('ERROR loading messages from API server: ', err)
+        }
+    }
+
+    
+
+
+
+
+
     //----------------------------------
     // Helper methods
     getSummaryInfo(messages) {
