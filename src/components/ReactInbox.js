@@ -52,10 +52,10 @@ class ReactInbox extends React.Component {
             let resp = await fetch(
                 `${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}`,
                 {
-                    method: "PATCH",
-                    body: JSON.stringify(theBody),
+                    method: 'patch',
+                    body: theBody,
                     headers: {
-                        "Content-Type": "application/json"
+                        'Content-Type': 'application/json'
                     }
                 }
             )
@@ -129,24 +129,29 @@ class ReactInbox extends React.Component {
         let resp
         let respJson
         let uri = `${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}`
-        let options = {
-            mode: "PATCH",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: {
-                messageIds: messages,
-                command: "read",
-                read: readFlag
-            }
-
+        let theBody = {
+            messageIds: messages,
+            command: 'read',
+            read: readFlag
         }
+        let options = {
+            method: "PATCH",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(theBody)
+        }
+
         console.log(`Setting read state to ${readFlag} for messages: ${messages}, to URI: ${uri}`)
         console.log(` -- PATCH Options: ${JSON.stringify(options)}`)
         try{
+            console.log("calling fetch()")
             resp = await fetch(uri, options)
-            respJson = await resp.json()
-            console.log("REESPONSE from API Server on PATCH: ", respJson)
+            // console.log("calling resp.json()")
+            // respJson = await resp.json()
+            if(resp.ok){
+                console.log("PATCH request to API Server returned status OK!")
+            }else{
+                console.log("PATH request to API Server returned error status: ",resp.statusText)
+            }
         }catch(err){
             console.log(`ERROR calling read PATCH: ${err}`)
         }
@@ -179,9 +184,17 @@ class ReactInbox extends React.Component {
     }
 
     markAsUnreadHandler = () => {
+        var updateList = []
+        this.state.messages.forEach(m=>{
+            if(m.selected === true) updateList.push(m.id)
+        })
+
+        this.patchReadMessages(updateList, false)
+            .then(console.log(" returned from Unread PATCH call."))
+
+
         var newMsgs = this.state.messages.map(msg => {
             if(msg.selected === true){
-                // PATCH call needed here for API server
                 msg.read = false
             }
             return msg
