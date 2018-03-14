@@ -19,21 +19,21 @@ const Message = ({message, selectHandler, starHandler}) => {
         type: "checkbox",
         onChange: (e)=>{selectMessageHandler(e,selectHandler)}
     }
-    console.dir(message)
+    // console.dir(message)
 
     if(message.selected){
         checkboxOptions.checked = true
         console.log(" .. We are setting Checked: ", checkboxOptions)
     }
 
-    console.log("checkbox options: ", checkboxOptions)
+    // console.log("checkbox options: ", checkboxOptions)
 
     let rowFormat = "row message "
     rowFormat += message.read ? "read " : "unread "
     rowFormat += message.selected ? "selected " : ""
     let checkedStatus = message.selected===true? "checked" : ""
 
-    console.log("MessageId: ", message.id, ', selected: ',message.selected,', checkedStatus: ',checkedStatus, ', starred: ',message.starred)
+    // console.log("MessageId: ", message.id, ', selected: ',message.selected,', checkedStatus: ',checkedStatus, ', starred: ',message.starred)
 
     let msgstarred = message.starred ? "star fa fa-star" : "star fa fa-star-o"
 

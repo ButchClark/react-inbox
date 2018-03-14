@@ -14,9 +14,6 @@ class ReactInbox extends React.Component {
         this.state ={
             messages: [],
             selectedStyle: 0,
-            unreadMessages: 0,
-            totalMessageCount: 0,
-            selectedMessageCount: 0
         }
 
         this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
@@ -36,7 +33,8 @@ class ReactInbox extends React.Component {
             const res = await fetch(`${msgsServer}${msgsURI}`)
             const json = await res.json()
             const msgs = json._embedded.messages
-            this.setState({messages: msgs})
+            const style = this.getSummaryInfo(msgs)
+            this.setState({messages: msgs, selectedStyle: style.selectedStyle})
         }catch(err){
             console.log('ERROR loading messages from API server: ', err)
         }
@@ -70,15 +68,10 @@ class ReactInbox extends React.Component {
             console.log(`ERROR in setStarred(${msgId}): ${err}`)
         }
     }
-
-    updateStarredHandler = (messageId) =>
-    {
+    updateStarredHandler = (messageId) => {
         this.setStarred(messageId)
-            .then(() => console.log(`ReactInbox.updateStarredHandler() just claled setStarred(${messageId})`))
+            .then(() => console.log(`ReactInbox.updateStarredHandler() just called setStarred(${messageId})`))
     }
-
-
-
 
 
     //----------------------------------
@@ -87,11 +80,9 @@ class ReactInbox extends React.Component {
         let selectedFormat = 0
         let selectedCount = 0
         let unreadCount = 0
-        let totalMessages = 0
         messages.map(msg => {
-            totalMessages++
-            if(msg.read !== true) unreadCount++
             if (msg.selected === true) selectedCount++
+            if (msg.read !== true) unreadCount++
             return selectedCount
         })
         if (selectedCount === messages.length) {
@@ -102,12 +93,7 @@ class ReactInbox extends React.Component {
             selectedFormat = NoneSelected
         }
 
-        console.log('.. calculated selectedMessageCount: ',selectedCount,', selectedStyle: ',selectedFormat, ', unreadCount: ', unreadCount, ', totalMsgs: ',totalMessages)
-        return {
-            selectedStyle: selectedFormat,
-            unreadCount: unreadCount,
-            selectedMessageCount: selectedCount,
-            totalMessageCount: totalMessages}
+        return { selectedStyle: selectedFormat, unreadCount: unreadCount }
     }
 
     getNextMessageId(messages) {
@@ -132,17 +118,50 @@ class ReactInbox extends React.Component {
                     messages: messages,
                     selectedStyle: summary.selectedStyle,
                     unreadMessages: summary.unreadCount,
-                    totalMessageCount: summary.totalMessageCount,
-                    selectedMessageCount: summary.selectedMessageCount
                 })
                 resolve(true)
             }
         )
     }
 
+
+    async patchReadMessages(messages, readFlag){
+        let resp
+        let respJson
+        let uri = `${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}`
+        let options = {
+            mode: "PATCH",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: {
+                messageIds: messages,
+                command: "read",
+                read: readFlag
+            }
+
+        }
+        console.log(`Setting read state to ${readFlag} for messages: ${messages}, to URI: ${uri}`)
+        console.log(` -- PATCH Options: ${JSON.stringify(options)}`)
+        try{
+            resp = await fetch(uri, options)
+            respJson = await resp.json()
+            console.log("REESPONSE from API Server on PATCH: ", respJson)
+        }catch(err){
+            console.log(`ERROR calling read PATCH: ${err}`)
+        }
+    }
     //----------------------------------
     // Handler methods
     markAsReadHandler = () =>{
+        var updateList = []
+        this.state.messages.forEach(m=>{
+            if(m.selected === true) updateList.push(m.id)
+        })
+
+        this.patchReadMessages(updateList, true)
+            .then(console.log(" returned from Read PATCH call."))
+
         var newMsgs = this.state.messages.map(msg => {
             if(msg.selected === true){
                 msg.read = true
@@ -154,9 +173,7 @@ class ReactInbox extends React.Component {
             {
                 messages: newMsgs,
                 selectedStyle: summary.selectedStyle,
-                unreadMessages: summary.unreadCount,
-                totalMessageCount: summary.totalMessageCount,
-                selectedMessageCount: summary.selectedMessageCount
+                unreadMessages: summary.unreadCount
             }
         )
     }
@@ -164,6 +181,7 @@ class ReactInbox extends React.Component {
     markAsUnreadHandler = () => {
         var newMsgs = this.state.messages.map(msg => {
             if(msg.selected === true){
+                // PATCH call needed here for API server
                 msg.read = false
             }
             return msg
@@ -173,9 +191,7 @@ class ReactInbox extends React.Component {
             {
                 messages: newMsgs,
                 selectedStyle: summary.selectedStyle,
-                unreadMessages: summary.unreadCount,
-                totalMessageCount: summary.totalMessageCount,
-                selectedMessageCount: summary.selectedMessageCount
+                unreadMessages: summary.unreadCount
             }
         )
     }
