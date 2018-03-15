@@ -11,7 +11,7 @@ const NoneSelected = 3
 class ReactInbox extends React.Component {
     constructor(props) {
         super(props)
-        this.state ={
+        this.state = {
             messages: [],
             selectedStyle: 0,
         }
@@ -19,13 +19,14 @@ class ReactInbox extends React.Component {
         this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
     }//end ctor()
 
-    componentDidMount (){
+    componentDidMount() {
         console.log(`ReactInbox.componentDidMount() - NODE_ENV: ${process.env.NODE_ENV} `)
         this.loadMessages()
-            // .then(console.log("messages loaded"))
+        // .then(console.log("messages loaded"))
     }
 
-    async loadMessages(){
+    async loadMessages(saveState = true) {
+        let msgs = []
         try {
             // let msgsServer = process.env.REACT_APP_MESSAGES_SERVER
             let msgsURI = process.env.REACT_APP_MESSAGES_URI
@@ -33,21 +34,22 @@ class ReactInbox extends React.Component {
             console.log(`ReactInbox.componentDidMount - getting msgs from: ${msgsURI}`)
             const res = await fetch(msgsURI)
             const json = await res.json()
-            const msgs = json._embedded.messages
+            msgs = json._embedded.messages
             const style = this.getSummaryInfo(msgs)
-            this.setState({messages: msgs, selectedStyle: style.selectedStyle})
-        }catch(err){
+            if(saveState) this.setState({messages: msgs, selectedStyle: style.selectedStyle})
+        } catch (err) {
             console.log('ERROR loading messages from API server: ', err)
         }
+        return msgs
     }
 
-    async setStarred(msgId){
-        try{
+    async setStarred(msgId) {
+        try {
             let msgRes = await fetch(`${process.env.REACT_APP_MESSAGES_URI}/${msgId}`)
             let msgJson = await msgRes.json()
             let starred = !msgJson.starred
 
-            let theBody = { messageIds: [msgId], command: "star", star: starred}
+            let theBody = {messageIds: [msgId], command: "star", star: starred}
             console.log(`setStarred(${msgId}) - sending payload: ${theBody}`)
 
             let resp = await fetch(process.env.REACT_APP_MESSAGES_URI,
@@ -59,15 +61,16 @@ class ReactInbox extends React.Component {
                     }
                 }
             )
-            if(resp.ok){
+            if (resp.ok) {
                 console.log(' PATCH was successful')
             }
             this.loadMessages()
                 .then(() => console.log('In starred handler, just called loadMessage()'))
-        }catch(err){
+        } catch (err) {
             console.log(`ERROR in setStarred(${msgId}): ${err}`)
         }
     }
+
     updateStarredHandler = (messageId) => {
         this.setStarred(messageId)
             .then(() => console.log(`ReactInbox.updateStarredHandler() just called setStarred(${messageId})`))
@@ -93,7 +96,7 @@ class ReactInbox extends React.Component {
             selectedFormat = NoneSelected
         }
 
-        return { selectedStyle: selectedFormat, unreadCount: unreadCount }
+        return {selectedStyle: selectedFormat, unreadCount: unreadCount}
     }
 
     getNextMessageId(messages) {
@@ -125,7 +128,7 @@ class ReactInbox extends React.Component {
     }
 
 
-    async patchReadMessages(messages, readFlag){
+    async patchReadMessages(messages, readFlag) {
         let resp
         let respJson
         //let uri = `${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}`
@@ -146,33 +149,34 @@ class ReactInbox extends React.Component {
 
         console.log(`Setting read state to ${readFlag} for messages: ${messages}, to URI: ${uri}`)
         console.log(` -- PATCH Options: ${JSON.stringify(options)}`)
-        try{
+        try {
             console.log("calling fetch()")
             resp = await fetch(uri, options)
             // console.log("calling resp.json()")
             // respJson = await resp.json()
-            if(resp.ok){
+            if (resp.ok) {
                 console.log("PATCH request to API Server returned status OK!")
-            }else{
-                console.log("PATH request to API Server returned error status: ",resp.statusText)
+            } else {
+                console.log("PATH request to API Server returned error status: ", resp.statusText)
             }
-        }catch(err){
+        } catch (err) {
             console.log(`ERROR calling read PATCH: ${err}`)
         }
     }
+
     //----------------------------------
     // Handler methods
-    markAsReadHandler = () =>{
+    markAsReadHandler = () => {
         var updateList = []
-        this.state.messages.forEach(m=>{
-            if(m.selected === true) updateList.push(m.id)
+        this.state.messages.forEach(m => {
+            if (m.selected === true) updateList.push(m.id)
         })
 
         this.patchReadMessages(updateList, true)
             .then(console.log(" returned from Read PATCH call."))
 
         var newMsgs = this.state.messages.map(msg => {
-            if(msg.selected === true){
+            if (msg.selected === true) {
                 msg.read = true
             }
             return msg
@@ -189,8 +193,8 @@ class ReactInbox extends React.Component {
 
     markAsUnreadHandler = () => {
         var updateList = []
-        this.state.messages.forEach(m=>{
-            if(m.selected === true) updateList.push(m.id)
+        this.state.messages.forEach(m => {
+            if (m.selected === true) updateList.push(m.id)
         })
 
         this.patchReadMessages(updateList, false)
@@ -198,7 +202,7 @@ class ReactInbox extends React.Component {
 
 
         var newMsgs = this.state.messages.map(msg => {
-            if(msg.selected === true){
+            if (msg.selected === true) {
                 msg.read = false
             }
             return msg
@@ -214,13 +218,12 @@ class ReactInbox extends React.Component {
     }
 
 
-
     selectMessageHandler = ({messageId}) => {
-        console.log('> selectMessageHandler - messageId: ',messageId)
+        console.log('> selectMessageHandler - messageId: ', messageId)
         var newMessages = this.state.messages.map(msg => {
                 if (Number(msg.id) === Number(messageId)) {
                     console.log(' .. flipping message.selected')
-                    msg.selected = msg.selected===true ? false : true
+                    msg.selected = msg.selected === true ? false : true
                     // msg.selected = !msg.selected
                 }
                 return msg
@@ -241,17 +244,60 @@ class ReactInbox extends React.Component {
         this.addNewItem({subject: subject, body: body})
     }
 
+    async patchDeleteMessages(messages){
+        console.log(`> patchDeleteMessages() for message Ids: ${messages}`)
+        let resp
+        let uri = process.env.REACT_APP_MESSAGES_URI
+        let theBody = {
+            messageIds: messages,
+            command: 'delete'
+        }
+        let options = {
+            method: "PATCH",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(theBody)
+        }
+
+        try {
+            console.log("calling fetch()")
+            resp = await fetch(uri, options)
+            if (resp.ok) {
+                console.log("PATCH for Delete Messages request to API Server returned status OK!")
+            } else {
+                console.log("PATH request for Delete Messages to API Server returned error status: ", resp.statusText)
+            }
+        } catch (err) {
+            console.log(`ERROR calling delete messages PATCH: ${err}`)
+        }
+    }
     deleteHandler = () => {
-        let uncheckedMessages = this.state.messages
-            .filter(m => !m.selected)
-        let summary = this.getSummaryInfo(uncheckedMessages)
-        this.setState({
-            messages: uncheckedMessages,
-            selectedStyle: summary.selectedStyle,
-            unreadMessages: summary.unreadCount,
-            totalMessageCount: summary.totalMessageCount,
-            selectedMessageCount: summary.selectedMessageCount
+        // Delete all checked messages
+        let checkedIds = []
+        this.state.messages.forEach(m => {
+            if (m.selected === true) { checkedIds.push(m.id) }
         })
+        this.patchDeleteMessages(checkedIds)
+
+
+        var messages = []
+        this.loadMessages(false)
+            .then( (m) => {
+                console.log('after loadMessages call')
+                messages = m.slice()
+            } )
+        console.log(`messages: ${messages}`)
+
+        // let summary = this.getSummaryInfo(returnedMessages)
+        // this.setState({
+        //     messages: uncheckedMessages,
+        //     selectedStyle: summary.selectedStyle,
+        //     unreadMessages: summary.unreadCount,
+        //     totalMessageCount: summary.totalMessageCount,
+        //     selectedMessageCount: summary.selectedMessageCount
+        // })
         //this.setState({messages: uncheckedMessages, selectedStyle: NoneSelected})
     }
 
@@ -291,11 +337,11 @@ class ReactInbox extends React.Component {
     }
 
     applyLabelHandler = (label) => {
-        if(label === "Apply label") return
+        if (label === "Apply label") return
 
         var newMsgs = this.state.messages.map(msg => {
-            if(msg.selected === true){
-                if( !msg.labels.includes(label)){
+            if (msg.selected === true) {
+                if (!msg.labels.includes(label)) {
                     msg.labels.push(label)
                 }
             }
@@ -314,13 +360,13 @@ class ReactInbox extends React.Component {
     }
 
     removeLabelHandler = (label) => {
-        if(label === "Remove label") return
+        if (label === "Remove label") return
 
         var newMsgs = this.state.messages.map(msg => {
-            if(msg.selected === true){
-                if( msg.labels.includes(label)){
+            if (msg.selected === true) {
+                if (msg.labels.includes(label)) {
                     let index = msg.labels.indexOf(label)
-                    msg.labels.splice(index,1)
+                    msg.labels.splice(index, 1)
                 }
             }
             return msg
@@ -336,6 +382,7 @@ class ReactInbox extends React.Component {
             }
         )
     }
+
     render() {
         return (
             <div>
