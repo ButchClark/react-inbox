@@ -27,10 +27,11 @@ class ReactInbox extends React.Component {
 
     async loadMessages(){
         try {
-            let msgsServer = process.env.REACT_APP_MESSAGES_SERVER
+            // let msgsServer = process.env.REACT_APP_MESSAGES_SERVER
             let msgsURI = process.env.REACT_APP_MESSAGES_URI
-            console.log(`ReactInbox.componentDidMount - getting msgs from: ${msgsServer}${msgsURI}`)
-            const res = await fetch(`${msgsServer}${msgsURI}`)
+            // console.log(`ReactInbox.componentDidMount - getting msgs from: ${msgsServer}${msgsURI}`)
+            console.log(`ReactInbox.componentDidMount - getting msgs from: ${msgsURI}`)
+            const res = await fetch(msgsURI)
             const json = await res.json()
             const msgs = json._embedded.messages
             const style = this.getSummaryInfo(msgs)
@@ -42,18 +43,17 @@ class ReactInbox extends React.Component {
 
     async setStarred(msgId){
         try{
-            let msgRes = await fetch(`${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}/${msgId}`)
+            let msgRes = await fetch(`${process.env.REACT_APP_MESSAGES_URI}/${msgId}`)
             let msgJson = await msgRes.json()
             let starred = !msgJson.starred
 
             let theBody = { messageIds: [msgId], command: "star", star: starred}
             console.log(`setStarred(${msgId}) - sending payload: ${theBody}`)
 
-            let resp = await fetch(
-                `${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}`,
+            let resp = await fetch(process.env.REACT_APP_MESSAGES_URI,
                 {
-                    method: 'patch',
-                    body: theBody,
+                    method: 'PATCH',
+                    body: JSON.stringify(theBody),
                     headers: {
                         'Content-Type': 'application/json'
                     }
@@ -128,7 +128,8 @@ class ReactInbox extends React.Component {
     async patchReadMessages(messages, readFlag){
         let resp
         let respJson
-        let uri = `${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}`
+        //let uri = `${process.env.REACT_APP_MESSAGES_SERVER}${process.env.REACT_APP_MESSAGES_URI}`
+        let uri = process.env.REACT_APP_MESSAGES_URI
         let theBody = {
             messageIds: messages,
             command: 'read',
@@ -136,7 +137,10 @@ class ReactInbox extends React.Component {
         }
         let options = {
             method: "PATCH",
-            headers: { "Content-Type": "application/json" },
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
             body: JSON.stringify(theBody)
         }
 
