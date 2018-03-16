@@ -58,6 +58,7 @@ class ReactInbox extends React.Component {
         return msgs
     }
 
+
     async setStarred(msgId) {
         try {
             let msgRes = await fetch(`${process.env.REACT_APP_MESSAGES_URI}/${msgId}`)
@@ -255,8 +256,32 @@ class ReactInbox extends React.Component {
         })
     }
 
+    postNewMessage = async (subject, body) => {
+        let resp
+        let theBody = {"subject": subject, "body": body}
+        let options = {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
+            body: JSON.stringify(theBody)
+        }
+        try {
+            resp = await fetch(process.env.REACT_APP_MESSAGES_URI, options)
+            if (resp.ok) {
+                console.log("POST request to API Server returned status OK!")
+            } else {
+                console.log("POST request to API Server returned error status: ", resp.statusText)
+            }
+        } catch (err) {
+            console.log(`ERROR calling new msg POST: ${err}`)
+        }
+    }
     addMesssage = ({subject, body}) => {
-        this.addNewItem({subject: subject, body: body})
+        this.postNewMessage(subject, body)
+            .then(() => console.log('just called postNewMessage()'))
+        this.loadMessages()
     }
 
     async patchDeleteMessages(messages) {
