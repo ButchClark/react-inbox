@@ -4,7 +4,6 @@ import Message from './Message'
 const Messages = ({messages, selectHandler, starHandler}) => {
     return (
         <div>
-            Messages here...
             <div name='messages'>
                 {messages.map(msg=>{
                     return <Message

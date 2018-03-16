@@ -14,6 +14,7 @@ class ReactInbox extends React.Component {
         this.state = {
             messages: [],
             selectedStyle: 0,
+            showCompose: false
         }
 
         this.setLabel = this.setLabel.bind(this)
@@ -433,6 +434,10 @@ class ReactInbox extends React.Component {
             .then(() => console.log('returned from setLabel()'))
     }
 
+    showComposeHandler = () =>{
+        this.setState({showCompose: !this.state.showCompose})
+    }
+
     render() {
         return (
             <div>
@@ -446,10 +451,11 @@ class ReactInbox extends React.Component {
                         addLabelHandler={this.applyLabelHandler}
                         removeLabelHandler={this.removeLabelHandler}
                         selectionHandler={this.updateSelectedButtonHandler}
+                        showComposeHandler={this.showComposeHandler}
                     />
                 </div>
                 <div>
-                    <ComposeMessage sendMessage={this.addMesssage}/>
+                    {this.state.showCompose && <ComposeMessage sendMessage={this.addMesssage}/> }
                 </div>
                 <div>
                     <Messages

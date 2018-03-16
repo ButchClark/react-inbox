@@ -19,7 +19,8 @@ const Toolbar = ({
                      markAsReadHandler,
                      markAsUnreadHandler,
                      addLabelHandler,
-                     removeLabelHandler
+                     removeLabelHandler,
+                     showComposeHandler
                  }) => {
     let disableThem = false
 
@@ -50,6 +51,9 @@ const Toolbar = ({
                     <span className="badge badge">{unreadMessages}</span>
                     unread message{unreadMessages === 1 ? "" : "s"}
                 </p>
+                <a class="btn btn-danger" onClick={showComposeHandler}>
+                    <i class="fa fa-plus"></i>
+                </a>
                 <button className="btn btn-default" onClick={selectionHandler}>
                     <i className={selectedFormat}></i>
                 </button>
