@@ -16,6 +16,7 @@ class ReactInbox extends React.Component {
             selectedStyle: 0,
         }
 
+        this.setLabel = this.setLabel.bind(this)
         this.updateSelectedButtonHandler = this.updateSelectedButtonHandler.bind(this)
     }//end ctor()
 
@@ -25,18 +26,32 @@ class ReactInbox extends React.Component {
         // .then(console.log("messages loaded"))
     }
 
-    async loadMessages(saveState = true) {
+    setSelected = (msg) => {
+        let selected = false
+        this.state.messages.forEach(m => {
+            if (Number(m.id) === Number(msg.id)) {
+                selected = m.selected
+            }
+        })
+        msg.selected = selected
+        return msg
+    }
+
+    async loadMessages() {
         let msgs = []
+
         try {
-            // let msgsServer = process.env.REACT_APP_MESSAGES_SERVER
             let msgsURI = process.env.REACT_APP_MESSAGES_URI
-            // console.log(`ReactInbox.componentDidMount - getting msgs from: ${msgsServer}${msgsURI}`)
-            console.log(`ReactInbox.componentDidMount - getting msgs from: ${msgsURI}`)
             const res = await fetch(msgsURI)
             const json = await res.json()
             msgs = json._embedded.messages
-            const style = this.getSummaryInfo(msgs)
-            if(saveState) this.setState({messages: msgs, selectedStyle: style.selectedStyle})
+            console.log(`msgs from API server: ${msgs}`)
+            let msgsWithSelected = msgs.map(m => {
+                return this.setSelected(m)
+            })
+            console.log(`msgsWithSelected: ${msgsWithSelected}`)
+            const style = this.getSummaryInfo(msgsWithSelected)
+            this.setState({messages: msgsWithSelected, selectedStyle: style.selectedStyle})
         } catch (err) {
             console.log('ERROR loading messages from API server: ', err)
         }
@@ -244,7 +259,7 @@ class ReactInbox extends React.Component {
         this.addNewItem({subject: subject, body: body})
     }
 
-    async patchDeleteMessages(messages){
+    async patchDeleteMessages(messages) {
         console.log(`> patchDeleteMessages() for message Ids: ${messages}`)
         let resp
         let uri = process.env.REACT_APP_MESSAGES_URI
@@ -273,21 +288,24 @@ class ReactInbox extends React.Component {
             console.log(`ERROR calling delete messages PATCH: ${err}`)
         }
     }
+
     deleteHandler = () => {
         // Delete all checked messages
         let checkedIds = []
         this.state.messages.forEach(m => {
-            if (m.selected === true) { checkedIds.push(m.id) }
+            if (m.selected === true) {
+                checkedIds.push(m.id)
+            }
         })
         this.patchDeleteMessages(checkedIds)
 
 
         var messages = []
         this.loadMessages(false)
-            .then( (m) => {
+            .then((m) => {
                 console.log('after loadMessages call')
                 messages = m.slice()
-            } )
+            })
         console.log(`messages: ${messages}`)
 
         // let summary = this.getSummaryInfo(returnedMessages)
@@ -336,51 +354,58 @@ class ReactInbox extends React.Component {
         return "message added"
     }
 
+    async setLabel(msgIds, label, addLabel = true) {
+        try {
+            let cmd = addLabel === true ? "addLabel" : "removeLabel"
+            let theBody = {
+                "messageIds": msgIds,
+                "command": cmd,
+                "label": label
+
+            }
+            let resp = await fetch(process.env.REACT_APP_MESSAGES_URI,
+                {
+                    method: 'PATCH',
+                    body: JSON.stringify(theBody),
+                    headers: {
+                        'Content-Type': 'application/json'
+                    }
+                }
+            )
+            if (resp.ok) {
+                console.log(' PATCH for setLabel was successful')
+            }
+            this.loadMessages()
+                .then(() => console.log('In setLabel(), just called loadMessage()'))
+        } catch (err) {
+            console.log(`ERROR in setLabel(${msgIds}): ${err}`)
+        }
+    }
+
     applyLabelHandler = (label) => {
         if (label === "Apply label") return
-
-        var newMsgs = this.state.messages.map(msg => {
-            if (msg.selected === true) {
-                if (!msg.labels.includes(label)) {
-                    msg.labels.push(label)
+        var msgIds = []
+        this.state.messages.forEach(msg => {
+                if (msg.selected === true) {
+                    msgIds.push(msg.id)
                 }
             }
-            return msg
-        })
-        let summary = this.getSummaryInfo(newMsgs)
-        this.setState(
-            {
-                messages: newMsgs,
-                selectedStyle: summary.selectedStyle,
-                unreadMessages: summary.unreadCount,
-                totalMessageCount: summary.totalMessageCount,
-                selectedMessageCount: summary.selectedMessageCount
-            }
         )
+        this.setLabel(msgIds, label, true)
+            .then(() => console.log('returned from setLabel()'))
     }
 
     removeLabelHandler = (label) => {
         if (label === "Remove label") return
-
-        var newMsgs = this.state.messages.map(msg => {
-            if (msg.selected === true) {
-                if (msg.labels.includes(label)) {
-                    let index = msg.labels.indexOf(label)
-                    msg.labels.splice(index, 1)
+        var msgIds = []
+        this.state.messages.forEach(msg => {
+                if (msg.selected === true) {
+                    msgIds.push(msg.id)
                 }
             }
-            return msg
-        })
-        let summary = this.getSummaryInfo(newMsgs)
-        this.setState(
-            {
-                messages: newMsgs,
-                selectedStyle: summary.selectedStyle,
-                unreadMessages: summary.unreadCount,
-                totalMessageCount: summary.totalMessageCount,
-                selectedMessageCount: summary.selectedMessageCount
-            }
         )
+        this.setLabel(msgIds, label, false)
+            .then(() => console.log('returned from setLabel()'))
     }
 
     render() {
