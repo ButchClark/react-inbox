@@ -6,17 +6,25 @@ import {
     MESSAGE_READ,
     MESSAGE_UNREAD,
     ADD_LABEL,
-    REMOVE_LABEL
+    REMOVE_LABEL, SHOW_COMPOSE
 } from '../actions'
 
-function messages(state = {messages: []}, action){
+const initialState = {
+    messages: []
+}
 
-    switch(action.type){
+function messages(state = initialState, action) {
+
+    switch (action.type) {
         case MESSAGES_RECEIVED:
             console.log("> reducers.MESSAGES_RECEIVED")
-            return {
-                ...state
+            console.dir(state)
+            let newState = {
+                ...state,
+                messages: action.messages
             }
+            console.dir(newState)
+            return newState
 
         case MESSAGE_ADDED:
             console.log("> reducers.MESSAGE_ADDED")
@@ -41,6 +49,13 @@ function messages(state = {messages: []}, action){
         case REMOVE_LABEL:
             console.log("> reducers.REMOVE_LABEL")
             return state
+
+        case SHOW_COMPOSE:
+            console.log("> reducers.SHOW_COMPOSE")
+            return {
+                ...state,
+                showComponse: !state.showCompose
+            }
 
         default:
             console.log(`> reducers.default (action.type: ${action.type})`)

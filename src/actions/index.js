@@ -6,16 +6,14 @@ export const MESSAGE_READ = "MESSAGE_READ"
 export const MESSAGE_UNREAD = "MESSAGE_UNREAD"
 export const ADD_LABEL = "ADD_LABEL"
 export const REMOVE_LABEL = "REMOVE_LABEL"
-
+export const SHOW_COMPOSE = "SHOW_COMPOSE"
 
 export function getMessages() {
     console.log("> actions.getMessages()")
     return async (dispatch) => {
         const resp = await fetch('/api/messages')
         const json = await resp.json()
-        json._embedded.messages.forEach((m) =>{
-            console.log(` - msg: ${m.id} - ${m.subject}`)
-        })
+        // This becomes the "action" object in the reducer
         dispatch({
             type: MESSAGES_RECEIVED,
             messages: json._embedded.messages
