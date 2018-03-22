@@ -7,5 +7,7 @@ import './index.css';
 import ReactInbox from './components/ReactInbox'
 import registerServiceWorker from './registerServiceWorker';
 
-ReactDOM.render(<ReactInbox />, document.getElementById('root'));
+ReactDOM.render(
+	<ReactInbox />, 
+	document.getElementById('root'));
 registerServiceWorker();
