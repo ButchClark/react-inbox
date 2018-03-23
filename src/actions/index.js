@@ -6,7 +6,8 @@ export const MESSAGE_READ = "MESSAGE_READ"
 export const MESSAGE_UNREAD = "MESSAGE_UNREAD"
 export const ADD_LABEL = "ADD_LABEL"
 export const REMOVE_LABEL = "REMOVE_LABEL"
-export const SHOW_COMPOSE = "SHOW_COMPOSE"
+export const TOGGLE_COMPOSE = "TOGGLE_COMPOSE"
+
 
 export function getMessages() {
     console.log("> actions.getMessages()")
@@ -21,5 +22,13 @@ export function getMessages() {
         )
 
     }
+}
 
+
+export function toggleCompose() {
+    return async(dispatch) =>{
+        dispatch({
+            type: TOGGLE_COMPOSE
+        })
+    }
 }

@@ -1,5 +1,8 @@
 import React from 'react'
 import {AllSelected, NoneSelected, SomeSelected} from "./ReactInbox";
+import {toggleCompose} from "../actions";
+import {connect} from "react-redux";
+import {bindActionCreators} from "redux";
 
 const addLabelEventHandler = (e, addLabel) =>{
     e.preventDefault()
@@ -11,7 +14,7 @@ const removeLabelEventHandler = (e, removeLabel) => {
     removeLabel(e.currentTarget.value)
 }
 
-const Toolbar = ({
+const Toolbar = ({  toggleCompose,
                      selectedStyle,
                      unreadMessages,
                      selectionHandler,
@@ -19,8 +22,7 @@ const Toolbar = ({
                      markAsReadHandler,
                      markAsUnreadHandler,
                      addLabelHandler,
-                     removeLabelHandler,
-                     showComposeHandler
+                     removeLabelHandler
                  }) => {
     let disableThem = false
 
@@ -51,8 +53,8 @@ const Toolbar = ({
                     <span className="badge badge">{unreadMessages}</span>
                     unread message{unreadMessages === 1 ? "" : "s"}
                 </p>
-                <a class="btn btn-danger" onClick={showComposeHandler}>
-                    <i class="fa fa-plus"></i>
+                <a className="btn btn-danger" onClick={toggleCompose}>
+                    <i className="fa fa-plus"></i>
                 </a>
                 <button className="btn btn-default" onClick={selectionHandler}>
                     <i className={selectedFormat}></i>
@@ -82,4 +84,14 @@ const Toolbar = ({
         </div>
     )
 }
-export default Toolbar
+
+const mapStateToProps =(state) =>({})
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+    toggleCompose: toggleCompose
+}, dispatch)
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Toolbar)

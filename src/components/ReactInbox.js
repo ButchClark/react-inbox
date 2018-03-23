@@ -9,29 +9,28 @@ export const SomeSelected = 2
 export const NoneSelected = 3
 
 const ReactInbox = ({messages, showCompose}) => {
-    console.log("----- ReactInbox - messages -----")
-    console.dir(messages)
+
 
     return (
         <div>
             <div>
-                {/*<Toolbar*/}
-                    {/*selectedStyle={this.state.selectedStyle}*/}
-                    {/*unreadMessages={this.state.unreadMessages}*/}
-                    {/*deleteHandler={this.deleteHandler}*/}
-                    {/*markAsReadHandler={this.markAsReadHandler}*/}
-                    {/*markAsUnreadHandler={this.markAsUnreadHandler}*/}
-                    {/*addLabelHandler={this.applyLabelHandler}*/}
-                    {/*removeLabelHandler={this.removeLabelHandler}*/}
-                    {/*selectionHandler={this.updateSelectedButtonHandler}*/}
-                    {/*showComposeHandler={this.showComposeHandler}*/}
-                {/*/>*/}
+                <Toolbar
+                    // selectedStyle={this.state.selectedStyle}
+                    // unreadMessages={this.state.unreadMessages}
+                    // deleteHandler={this.deleteHandler}
+                    // markAsReadHandler={this.markAsReadHandler}
+                    // markAsUnreadHandler={this.markAsUnreadHandler}
+                    // addLabelHandler={this.applyLabelHandler}
+                    // removeLabelHandler={this.removeLabelHandler}
+                    // selectionHandler={this.updateSelectedButtonHandler}
+                    // showComposeHandler={this.showComposeHandler}
+                />
             </div>
             <div>
                 {showCompose && <ComposeMessage sendMessage={this.addMesssage}/>}
             </div>
             <div>
-                {console.log(`Inbox - sending messages: ${messages.messages}`)}
+                {console.log(`Inbox - sending messages: ${JSON.stringify(messages)}`)}
                 <Messages
                     name="messages"
                     messages={messages}
@@ -39,16 +38,13 @@ const ReactInbox = ({messages, showCompose}) => {
                     starHandler={()=>{alert("starred")}}
                 />
             </div>
-            <div>
-                <p>We have this many messages: {(messages.messages)? messages.messages.length : "undefined"}</p>
-            </div>
         </div>
     )
 }
 
 const mapStateToProps = state =>({
-    messages: state.messages,
-    showComponse: state.showComponse
+    messages: state.messages.messages,
+    showCompose: state.messages.showCompose
 })
 
 const mapDispatchToProps = () => ({})

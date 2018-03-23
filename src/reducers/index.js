@@ -6,7 +6,8 @@ import {
     MESSAGE_READ,
     MESSAGE_UNREAD,
     ADD_LABEL,
-    REMOVE_LABEL, SHOW_COMPOSE
+    REMOVE_LABEL,
+    TOGGLE_COMPOSE
 } from '../actions'
 
 const initialState = {
@@ -18,13 +19,10 @@ function messages(state = initialState, action) {
     switch (action.type) {
         case MESSAGES_RECEIVED:
             console.log("> reducers.MESSAGES_RECEIVED")
-            console.dir(state)
-            let newState = {
+            return {
                 ...state,
                 messages: action.messages
             }
-            console.dir(newState)
-            return newState
 
         case MESSAGE_ADDED:
             console.log("> reducers.MESSAGE_ADDED")
@@ -50,11 +48,27 @@ function messages(state = initialState, action) {
             console.log("> reducers.REMOVE_LABEL")
             return state
 
-        case SHOW_COMPOSE:
-            console.log("> reducers.SHOW_COMPOSE")
+        case TOGGLE_COMPOSE:
+            console.log("> reducers.TOGGLE_COMPOSE")
+            let show = false
+            console.dir(state)
+            if(typeof state.messages === "undefined") {
+                console.log("state.messages == undefined")
+                show = true
+            }else if (typeof state.showCompose === "undefined"){
+                console.log("state.showCompose == undefined")
+                show = true
+            }else if (state.showCompose === false){
+                console.log("state.messages.showCompose == false")
+                show = true
+            }else{
+                console.log(`else... ${state.showCompose}`)
+                show = false
+            }
+
             return {
                 ...state,
-                showComponse: !state.showCompose
+                showCompose: show
             }
 
         default:
