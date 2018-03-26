@@ -3,6 +3,8 @@ import Messages from './Messages'
 import Toolbar from './Toolbar'
 import ComposeMessage from './ComposeMessage'
 import {connect} from 'react-redux'
+import {toggleStar} from "../actions";
+import {bindActionCreators} from "redux"
 
 export const AllSelected = 1
 export const SomeSelected = 2
@@ -35,7 +37,7 @@ const ReactInbox = ({messages, showCompose}) => {
                     name="messages"
                     messages={messages}
                     selectHandler={()=>{alert("selected")}}
-                    starHandler={()=>{alert("starred")}}
+                    starHandler={toggleStar}
                 />
             </div>
         </div>
@@ -47,7 +49,11 @@ const mapStateToProps = state =>({
     showCompose: state.messages.showCompose
 })
 
-const mapDispatchToProps = () => ({})
+const mapDispatchToProps = (dispatch) => bindActionCreators(
+    {
+        toggleStar: toggleStar
+
+    }, dispatch)
 
 export default connect(
     mapStateToProps,

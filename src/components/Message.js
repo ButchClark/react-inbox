@@ -1,11 +1,26 @@
 import React from 'react'
 
-const starClickHandler = (e,upstreamHandler) => {
+const starClickHandler = (e, upstreamHandler) => {
     e.preventDefault()
+    if(!upstreamHandler){
+        console.log("Message.starClickHandler: upstreamHandler is NULL/empty")
+    }
+
+
+    // ------------------------------------------
+    // sending data on the event object.
+    // Accessed as:  e.target.dataset.myvarname
+    // Set like this on a component:
+    //   <Thing data-myvarname="XYZ" ...
+    // ------------------------------------------
+    console.log(`Message.starClickHandler for msg: ${e.target.dataset.messagenum}`)
+    console.log('Calling upstreamHandler()')
     upstreamHandler(e.target.dataset.messagenum)
+    console.log(`After calling upstreamHandler`)
+
 }
 
-const selectMessageHandler = (e,selectHandler) =>{
+const selectMessageHandler = (e, selectHandler) => {
     // The following preventDefault() was breaking the normal
     //  checkbox event handling.
     // e.preventDefault()
@@ -17,11 +32,13 @@ const Message = ({message, selectHandler, starHandler}) => {
         name: "selectCheckbox",
         value: message.id,
         type: "checkbox",
-        onChange: (e)=>{selectMessageHandler(e,selectHandler)}
+        onChange: (e) => {
+            selectMessageHandler(e, selectHandler)
+        }
     }
     // console.dir(message)
 
-    if(message.selected){
+    if (message.selected) {
         checkboxOptions.checked = true
         console.log(" .. We are setting Checked: ", checkboxOptions)
     }
@@ -31,7 +48,7 @@ const Message = ({message, selectHandler, starHandler}) => {
     let rowFormat = "row message "
     rowFormat += message.read ? "read " : "unread "
     rowFormat += message.selected ? "selected " : ""
-    let checkedStatus = message.selected===true? "checked" : ""
+    let checkedStatus = message.selected === true ? "checked" : ""
 
     // console.log("MessageId: ", message.id, ', selected: ',message.selected,', checkedStatus: ',checkedStatus, ', starred: ',message.starred)
 
@@ -46,15 +63,17 @@ const Message = ({message, selectHandler, starHandler}) => {
                             name="selectCheckbox"
                             value={message.id}
                             type="checkbox"
-                            onChange={(e) => selectMessageHandler(e,selectHandler)}
+                            onChange={(e) => selectMessageHandler(e, selectHandler)}
                             checked={checkedStatus}/>
                     </div>
-                    <div className="col-xs-2" >
+                    <div className="col-xs-2">
                         <i name="star"
                            data-messagenum={message.id}
                            data-msg="MyMsg"
                            value={message.id}
-                           onClick={(e) => {starClickHandler(e,starHandler)}}
+                           onClick={(e) => {
+                               starClickHandler(e, starHandler)
+                           }}
                            className={msgstarred}/>
                     </div>
                 </div>
@@ -62,8 +81,8 @@ const Message = ({message, selectHandler, starHandler}) => {
 
             <div>
                 <div className="col-xs-11">
-                    {message.labels.map((lbl,id) =>{
-                        return<span key={id} className="label label-warning">{lbl}</span>
+                    {message.labels.map((lbl, id) => {
+                        return <span key={id} className="label label-warning">{lbl}</span>
                     })}
                     {message.subject}
                 </div>

@@ -2,7 +2,7 @@ import {combineReducers} from 'redux'
 import {
     MESSAGES_RECEIVED,
     MESSAGE_ADDED,
-    MESSAGE_STARRED,
+    TOGGLE_STAR,
     MESSAGE_READ,
     MESSAGE_UNREAD,
     ADD_LABEL,
@@ -28,9 +28,12 @@ function messages(state = initialState, action) {
             console.log("> reducers.MESSAGE_ADDED")
             return state
 
-        case MESSAGE_STARRED:
-            console.log("> reducers.MESSAGE_STARRED")
-            return state
+        case TOGGLE_STAR:
+            console.log("> reducers.TOGGLE_STAR")
+            return {
+                ...state,
+                starred: !state.starred
+            }
 
         case MESSAGE_READ:
             console.log("> reducers.MESSAGE_READ")
