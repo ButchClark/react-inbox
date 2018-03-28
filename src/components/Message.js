@@ -1,4 +1,7 @@
 import React from 'react'
+import {toggleStar, shit} from "../actions";
+import {connect} from "react-redux";
+import {bindActionCreators} from "redux";
 
 const starClickHandler = (e, upstreamHandler) => {
     e.preventDefault()
@@ -15,8 +18,9 @@ const starClickHandler = (e, upstreamHandler) => {
     // ------------------------------------------
     console.log(`Message.starClickHandler for msg: ${e.target.dataset.messagenum}`)
     console.log('Calling upstreamHandler()')
-    upstreamHandler(e.target.dataset.messagenum)
+    // upstreamHandler(e.target.dataset.messagenum)
     console.log(`After calling upstreamHandler`)
+    shit(1)
 
 }
 
@@ -27,7 +31,7 @@ const selectMessageHandler = (e, selectHandler) => {
     selectHandler({messageId: e.currentTarget.value})
 }
 
-const Message = ({message, selectHandler, starHandler}) => {
+const Message = ({message, selectHandler}) => {
     var checkboxOptions = {
         name: "selectCheckbox",
         value: message.id,
@@ -72,7 +76,7 @@ const Message = ({message, selectHandler, starHandler}) => {
                            data-msg="MyMsg"
                            value={message.id}
                            onClick={(e) => {
-                               starClickHandler(e, starHandler)
+                               starClickHandler(e, toggleStar)
                            }}
                            className={msgstarred}/>
                     </div>
@@ -91,4 +95,15 @@ const Message = ({message, selectHandler, starHandler}) => {
     )
 }
 
-export default Message
+const mapStateToProps =(state) =>({
+    selectHandler: state.selectHandler
+})
+
+const mapDispatchToProps = dispatch => bindActionCreators({
+    toggleStar: toggleStar
+}, dispatch)
+
+export default connect(
+    mapStateToProps,
+    mapDispatchToProps
+)(Message)

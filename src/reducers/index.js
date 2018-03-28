@@ -7,7 +7,8 @@ import {
     MESSAGE_UNREAD,
     ADD_LABEL,
     REMOVE_LABEL,
-    TOGGLE_COMPOSE
+    TOGGLE_COMPOSE,
+    getMessages
 } from '../actions'
 
 const initialState = {
@@ -30,10 +31,8 @@ function messages(state = initialState, action) {
 
         case TOGGLE_STAR:
             console.log("> reducers.TOGGLE_STAR")
-            return {
-                ...state,
-                starred: !state.starred
-            }
+            getMessages()
+            return state
 
         case MESSAGE_READ:
             console.log("> reducers.MESSAGE_READ")

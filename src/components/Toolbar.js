@@ -1,6 +1,6 @@
 import React from 'react'
 import {AllSelected, NoneSelected, SomeSelected} from "./ReactInbox";
-import {toggleCompose} from "../actions";
+import {toggleCompose, deleteMessages} from "../actions";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 
@@ -13,12 +13,21 @@ const removeLabelEventHandler = (e, removeLabel) => {
     e.preventDefault()
     removeLabel(e.currentTarget.value)
 }
+const getSelectedMessageIds = (msgs) =>{
+    const selectedMsgIds = []
+    msgs.forEach((m)=>{
+        if(m.selected && m.selected === true){
+            selectedMsgIds.push(m.id)
+        }
+    })
+    return selectedMsgIds
+}
 
-const Toolbar = ({  toggleCompose,
+const Toolbar = ({  messages,
+                     toggleCompose,
                      selectedStyle,
                      unreadMessages,
                      selectionHandler,
-                     deleteHandler,
                      markAsReadHandler,
                      markAsUnreadHandler,
                      addLabelHandler,
@@ -77,7 +86,7 @@ const Toolbar = ({  toggleCompose,
                     <option value="gschool">gschool</option>
                 </select>
 
-                <button {...markAsProps} onClick={deleteHandler}>
+                <button {...markAsProps} onClick={(e) => {deleteMessages(getSelectedMessageIds(messages))}}>
                     <i className="fa fa-trash-o"></i>
                 </button>
             </div>
@@ -85,7 +94,9 @@ const Toolbar = ({  toggleCompose,
     )
 }
 
-const mapStateToProps =(state) =>({})
+const mapStateToProps =(state) =>({
+    messages: state.messages
+})
 
 const mapDispatchToProps = dispatch => bindActionCreators({
     toggleCompose: toggleCompose
