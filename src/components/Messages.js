@@ -9,11 +9,11 @@ const Messages = ({messages, selectHandler, starHandler}) => {
         <div>
             <div name='messages'>
                 {
-                    messages.messages.map(msg=>{
+                    messages.map(msg=>{
                     return <Message
                         key={msg.id}
                         message={msg}
-                        selectHandler={selectHandler}
+                        selectHandler={this.state.selectHandler}
                         starHandler={starHandler}
                     />})
                 }
@@ -22,11 +22,14 @@ const Messages = ({messages, selectHandler, starHandler}) => {
     )
 }
 
-const mapStateToProps = state => ({
-    messages: state.messages
-})
-const mapDispatchToProps = () => ({})
-export default connect(
-    mapStateToProps,
-    mapDispatchToProps
-)(Messages)
+export default Messages
+
+// const mapStateToProps = state => ({
+//     messages: state.messages,
+//     selectHandler: state.selectHandler
+// })
+// const mapDispatchToProps = () => ({})
+// export default connect(
+//     mapStateToProps,
+//     mapDispatchToProps
+// )(Messages)

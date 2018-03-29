@@ -26,6 +26,9 @@ export function getMessages() {
     }
 }
 
+
+
+
 export function shit(messageId){
     console.log(">entering shit()")
     const xxx = getMessages()

@@ -28,10 +28,17 @@ const selectMessageHandler = (e, selectHandler) => {
     // The following preventDefault() was breaking the normal
     //  checkbox event handling.
     // e.preventDefault()
+    console.log(`Message.selectMessageHandler - calling selectHandler( ${e.currentTarget.value} )`)
+    console.log(' .. selectHandler is...')
+    console.dir(selectHandler)
     selectHandler({messageId: e.currentTarget.value})
 }
 
 const Message = ({message, selectHandler}) => {
+
+    console.log(`Message: - message: ${message}`)
+    console.log(`Message: - selectHandler: ${selectHandler}`)
+
     var checkboxOptions = {
         name: "selectCheckbox",
         value: message.id,

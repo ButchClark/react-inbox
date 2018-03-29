@@ -1,30 +1,33 @@
 import React from 'react'
 import {AllSelected, NoneSelected, SomeSelected} from "./ReactInbox";
-import {toggleCompose, deleteMessages} from "../actions";
+import {toggleCompose} from "../actions";
 import {connect} from "react-redux";
 import {bindActionCreators} from "redux";
 
-const addLabelEventHandler = (e, addLabel) =>{
+const addLabelEventHandler = (e, addLabel) => {
     e.preventDefault()
-    addLabel( e.currentTarget.value )
+    addLabel(e.currentTarget.value)
 }
 
 const removeLabelEventHandler = (e, removeLabel) => {
     e.preventDefault()
     removeLabel(e.currentTarget.value)
 }
-const getSelectedMessageIds = (msgs) =>{
+const getSelectedMessageIds = (msgs) => {
     const selectedMsgIds = []
-    msgs.forEach((m)=>{
-        if(m.selected && m.selected === true){
+    msgs.forEach((m) => {
+        if (m.selected && m.selected === true) {
             selectedMsgIds.push(m.id)
         }
     })
     return selectedMsgIds
 }
 
-const Toolbar = ({  messages,
+const Toolbar = ({
                      toggleCompose,
+                     deleteHandler,
+
+
                      selectedStyle,
                      unreadMessages,
                      selectionHandler,
@@ -72,21 +75,27 @@ const Toolbar = ({  messages,
                 <button {...markAsProps} onClick={markAsReadHandler}>Mark As Read</button>
                 <button {...markAsProps} onClick={markAsUnreadHandler}>Mark As Unread</button>
 
-                <select {...selectProps} onChange={(e) => {addLabelEventHandler(e,addLabelHandler)}} >
+                <select {...selectProps} onChange={(e) => {
+                    addLabelEventHandler(e, addLabelHandler)
+                }}>
                     <option>Apply label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                <select {...selectProps} onChange={(e)=>{removeLabelEventHandler(e,removeLabelHandler)}}>
+                <select {...selectProps} onChange={(e) => {
+                    removeLabelEventHandler(e, removeLabelHandler)
+                }}>
                     <option>Remove label</option>
                     <option value="dev">dev</option>
                     <option value="personal">personal</option>
                     <option value="gschool">gschool</option>
                 </select>
 
-                <button {...markAsProps} onClick={(e) => {deleteMessages(getSelectedMessageIds(messages))}}>
+                <button {...markAsProps} onClick={(e) => {
+                    deleteHandler()
+                }}>
                     <i className="fa fa-trash-o"></i>
                 </button>
             </div>
@@ -94,7 +103,7 @@ const Toolbar = ({  messages,
     )
 }
 
-const mapStateToProps =(state) =>({
+const mapStateToProps = (state) => ({
     messages: state.messages
 })
 
